@@ -1,0 +1,192 @@
+:root {
+  --grey-black: #333333;
+  --orange: #F98500;
+  --white: #FFFFFF;
+  --green: #47A645;
+  --red: #E94F4F;
+  --grey: #979797;
+  --grey-white: #F0F0F0;
+  --black: #000000;
+  --black-opacity: rgba(0, 0, 0, 0.55);
+
+  --border-radius-5: 5px;
+  --border-radius-50: 50px;
+  --border-radius-20: 20px;
+  --border-radius-10: 10px;
+}
+
+
+/*Текст*/
+.header__banner__white__b__48 {
+  color: #FFF;
+  font-size: 48px;
+  font-weight: 700;
+}
+.header__block__black__b__36 {
+  color: #000;
+  font-size: 36px;
+  font-weight: 700;
+}
+.header__footer__white__b__24 {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 700;
+}
+.number__phone__white__b__32 {
+  color: #fff;
+  font-size: 36px;
+  font-weight: 700;
+}
+.text__content__black__32 {
+  color: #000;
+  font-size: 32px;
+}
+.text__content__white__32 {
+  color: #fff;
+  font-size: 32px;
+}
+.assessment__b{
+  color: #F98500;
+  text-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.55);
+  font-size: 32px;
+  font-weight: 700;
+}
+.text__content__white__20{
+  color: #fff;
+  font-size: 20px;
+}
+.text__content__black__b__24{
+  color: #000;
+  font-size: 24px;
+  font-weight: 700;
+}
+.text__content__black__b__20{
+  color: #000;
+  font-size: 20px;
+  font-weight: 700;
+}
+.text__content__white__16 {
+  color: #fff;
+  font-size: 16px;
+}
+.text__content__black__16 {
+  color: #000;
+  font-size: 16px;
+}
+.text__content__black__b__16 {
+  color: #000;
+  font-size: 16px;
+  font-weight: 700;
+}
+.text__content__grey__16 {
+  color: #979797;
+  font-size: 16px;
+}
+.text__content__white__15 {
+  color: #fff;
+  font-size: 15px;
+}
+.text__content__white__b__15 {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+}
+.text__content__black__15 {
+  color: #000;
+  font-size: 15px;
+}
+.text__content__white__14 {
+  color: #fff;
+  font-size: 14px;
+}
+.text__content__black__14 {
+  color: #000;
+  font-size: 14px;
+}
+.text__content__grey__12 {
+  color: #979797;
+  font-size: 12px;
+}
+.text__content__white__12 {
+  color: #fff;
+  font-size: 12px;
+}
+.text__content__orange__12 {
+  color: #F98500;
+  font-size: 12px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  /*justify-content: flex-start;*/
+  /*align-items: center;*/
+}
+.container::-webkit-scrollbar {
+  display: none;
+}
+/*Разметка страницы*/
+.row__sa__c{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+.row__sb__c{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.column__sb__c{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+
+
+
+.block__page {
+  display: flex;
+  flex-direction: column;
+  background: var(--grey-white);
+}
+
+.block__center__scroll {
+  height: 800px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+.block__center__scroll::-webkit-scrollbar {
+  display: none;
+}
+.header {
+  flex: 0 0 auto;
+}
+.body {
+  flex: 1 0 auto;
+}
+.footer {
+  flex: 0 0 auto;
+}
+.block {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-top: 20px;
+}
+
+a { text-decoration: none; }
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  /* display: none; <- Crashes Chrome on hover */
+  -webkit-appearance: none;
+  margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
