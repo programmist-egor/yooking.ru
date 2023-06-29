@@ -1,0 +1,35 @@
+.where__to__go {
+    height: 780px;
+    border-radius: var(--border-radius-50);
+    background: var(--white);
+    padding: 10px;
+    z-index: 10;
+    margin: -100px 10% 50px 10% ;
+}
+.where__to__go__item {
+    display: flex;
+    flex-direction: row;
+    height: 300px;
+    width: 30%;
+    margin: 15px;
+    border-radius: var(--border-radius-20);
+    cursor: pointer;
+    justify-content: center;
+    align-items: flex-end;
+}
+.benefit__block {
+    background: var(--white);
+    height: 400px;
+    margin-bottom: 50px;
+}
+.mobileApp__block {
+    background: var(--grey-black);
+    height: 400px;
+    margin-bottom: 50px;
+    overflow: hidden;
+}
+.followUs__block {
+    background: var(--white);
+    height: 180px;
+    margin-bottom: 50px;
+}

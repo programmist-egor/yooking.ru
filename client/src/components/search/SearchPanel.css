@@ -1,0 +1,25 @@
+.search__input__text {
+    background: none;
+    border: none;
+    outline: none;
+    padding-left: 10px;
+    color: var(--grey);
+    font-size: 16px;
+    flex-grow: 1;
+}
+#input-date{
+    color: var(--black);
+}
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-calendar-picker-indicator {
+    content: "\f095";
+    -webkit-appearance: none;
+}
+.input__search{
+    height: 40px;
+    background: var(--white);
+    border-radius: var(--border-radius-5);
+    border-bottom: solid 2px var(--orange);
+    width: 60vw;
+
+}

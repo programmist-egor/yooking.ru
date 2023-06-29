@@ -1,0 +1,10 @@
+.mapBtn {
+    background-size: cover;
+    background-position: center;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    padding: 0 2rem 0 2rem;
+}

@@ -1,0 +1,76 @@
+/*Кнопка найти*/
+.searchBtn {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background: var(--orange);
+    cursor: pointer;
+    height: 42px;
+    width: 135px;
+    border-radius: var(--border-radius-5);
+    margin-left: 20px;
+}
+.greyBtn {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background: var(--grey-black);
+    cursor: pointer;
+    height: 45px;
+    flex-grow: 0.2;
+    border-radius: var(--border-radius-5);
+    margin-left: 20px;
+}
+.chooseHotelBtn {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background: var(--orange);
+    cursor: pointer;
+    height: 40px;
+    flex-grow: 1;
+    border-radius: var(--border-radius-5);
+    margin-left: 20px;
+}
+.mapButton {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background: var(--grey-black);
+    cursor: pointer;
+    height: 30px;
+    border-radius: var(--border-radius-5);
+}
+.showOnMapBtn {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background: var(--grey-black);
+    cursor: pointer;
+    height: 25px;
+    width: 170px;
+    border-radius: var(--border-radius-5);
+}
+.sort {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background: var(--grey-2);
+    cursor: pointer;
+    height: 30px;
+    border-radius: var(--border-radius-5);
+}
+.counterBtn {
+    background: var(--white);
+    border: 1px solid var(--black);
+    border-radius: var(--border-radius-5);
+    padding: 5px;
+    height: 30px;
+    width: 30%;
+}
