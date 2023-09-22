@@ -8,3 +8,109 @@
     flex-direction: row;
     padding: 0 2rem 0 2rem;
 }
+.user__icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+    background: var(--grey-black);
+    border-radius: var(--border-radius-15);
+    border: 3px solid var(--grey-2);
+    margin-left: 10px;
+}
+.borderBottom{
+    border-bottom: 1px solid var(--grey-white);
+}
+.nav__item__user__icon {
+    margin-left: 10px;
+}
+.nav__item__user {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    height: 35px;
+    cursor: pointer;
+}
+.nav__item__user:hover {
+    background: var(--grey-white);
+}
+.exit__item__btn {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    height: 45px;
+    cursor: pointer;
+    border-top: 1px solid var(--grey-white);
+    border-bottom: 1px solid var(--grey-white);
+}
+.exit__item__btn:hover {
+    background: var(--grey-white);
+}
+
+/*DesktopHeader 920*/
+@media (min-width: 920px) {
+    .desktop__header {
+        display: flex;
+    }
+    .tablet__header {
+        display: none;
+    }
+    .mobile__avatar__user{
+        display: none;
+    }
+}
+/*Laptop 907*/
+@media (min-width: 907px) {
+    /*Компонент HeaderHotel*/
+    .laptop__header__hotel__block {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin: 20px 18% 20px 18%;
+    }
+    .tablet__header__hotel__block {
+        display: none;
+    }
+}
+/*Tablet 0_906*/
+@media (min-width: 0px) and (max-width: 907px){
+    /*Компонент HeaderHotel*/
+    .laptop__header__hotel__block {
+        display: none;
+    }
+    .tablet__header__hotel__block {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin: 15px 0 15px 5%;
+    }
+}
+
+/*Tablet 919*/
+@media (min-width: 530px) and (max-width: 919px) {
+    .desktop__header {
+        display: none;
+    }
+    .tablet__header {
+        display: flex;
+    }
+    .mobile__avatar__user{
+        display: none;
+    }
+}
+/*Mobile 0_529*/
+@media (min-width: 0px) and (max-width: 529px) {
+
+    .desktop__header {
+        display: none;
+    }
+    .tablet__header {
+        display: none;
+    }
+    .mobile__avatar__user{
+        display: flex;
+    }
+}

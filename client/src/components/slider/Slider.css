@@ -1,5 +1,11 @@
 .cardControlSlider {
     cursor: pointer;
-    padding: 10px;
+    padding: 5px;
+}
 
+.arrowBtn {
+    padding: 5px;
+    background: var(--black-opacity);
+    border-radius: 22px;
+    margin-top:25px;
 }

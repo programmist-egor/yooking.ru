@@ -1,34 +1,29 @@
 import "./Header.css"
 import {Button} from "../buttons/Button";
-import {Link} from "react-router-dom";
 import mapBtn from "../../img/blocks/mapBtn.png"
 
-export const HeaderHotel = ({value}) => {
+export const HeaderHotel = ({value, toggleDrawerMap}) => {
     return (
-        <div
-            className="row__sb__c"
-            style={{
-                marginTop: "15px",
-                marginBottom: "15px"
-            }}
-        >
-            <h1 className="header__block__black__b__36">
-                Найдено {value} варианта
-            </h1>
-            <Link
-                to={"/"}
-                className="mapBtn"
-                style={{
-                    backgroundImage: `url(${mapBtn})`,
-                }}
-            >
-                <Button
-                    style={"mapButton"}
-                    styleText={"text__content__white__16"}
-                    padding={10}
-                    handler={() => console.log("Показать на карте")}
-                    name={"Показать на карте"}/>
-            </Link>
+        <div>
+                <div className="laptop__header__hotel__block">
+                    <h1 className="text__content__black__b__26">
+                        Найдено {value} вариантов
+                    </h1>
+                    <div className="mapBtn" style={{backgroundImage: `url(${mapBtn})`, borderRadius: "15px"}}>
+                        <Button
+                            style={"mapButton"}
+                            styleText={"text__content__white__16"}
+                            padding={10}
+                            handler={toggleDrawerMap}
+                            name={"Показать на карте"}/>
+                    </div>
+                </div>
+
+                <div className="tablet__header__hotel__block">
+                    <h1 className="text__content__black__b__24">
+                        Найдено {value} вариантов
+                    </h1>
+                </div>
         </div>
     )
 }

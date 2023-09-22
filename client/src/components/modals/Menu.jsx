@@ -4,18 +4,20 @@ import {
     Icon24BuildingOutline
 } from '@vkontakte/icons';
 import {BLACK, WHITE} from "../../theme/colors";
+import {Link} from "react-router-dom";
 
 
 export const Menu = ({style, handleMenu}) => {
     return (
         <div className={style}
-             onClick={handleMenu}
+
         >
             <div className="modal__content__menu">
                 <div className="modal__body">
-                    <div
+                    <Link
+                        to={"/Войти"}
                         className="row__c__fs"
-                        onClick={() => console.log("Войти")}
+                        onClick={handleMenu}
                         style={{
                             cursor: "pointer"
                         }}
@@ -27,10 +29,11 @@ export const Menu = ({style, handleMenu}) => {
                                 marginLeft: "5px"
                             }}
                         >Войти</span>
-                    </div>
-                    <div
+                    </Link>
+                    <Link
+                        to={"/Зарегистрироваться"}
                         className="row__c__fs"
-                        onClick={() => console.log("Зарегистрироваться")}
+                        onClick={handleMenu}
                         style={{
                             cursor: "pointer",
                             marginTop: "5px",
@@ -43,10 +46,11 @@ export const Menu = ({style, handleMenu}) => {
                                 marginLeft: "5px"
                             }}
                         >Зарегистрироваться</span>
-                    </div>
-                    <div
+                    </Link>
+                    <Link
+                        to={"/Зарегистрировать_объект"}
                         className="row__c__fs"
-                        onClick={() => console.log("Зарегистрировать объект")}
+                        onClick={handleMenu}
                         style={{
                             cursor: "pointer",
                             marginTop: "5px"
@@ -59,7 +63,7 @@ export const Menu = ({style, handleMenu}) => {
                                 marginLeft: "5px"
                             }}
                         >Зарегистрировать объект</span>
-                    </div>
+                    </Link>
                 </div>
             </div>
         </div>

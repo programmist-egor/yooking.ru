@@ -1,25 +1,39 @@
 import { Icon24MinusOutline, Icon24Add } from '@vkontakte/icons';
-import {BLACK} from "../../theme/colors";
+import {BLACK, GREY_WHITE} from "../../theme/colors";
 
-export const ButtonCounter = ({count}) => {
+export const ButtonCounter = ({count, style,handleDel, handleAdd}) => {
     return (
-        <div className="row__sb__c counterBtn">
+        <div className={style}>
             <span
-                onClick={() => console.log("DEL")}
+                onClick={handleDel}
                 style={{
-                    cursor: "pointer"
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    width: "25px",
+                    height: "25px",
+                    borderRadius: "50%",
+                    background: GREY_WHITE,
                 }}
             >
-                <Icon24MinusOutline color={BLACK}/>
+                <Icon24MinusOutline width={16} height={16} color={BLACK}/>
             </span>
-            <span className="text__content__black__b__20">{count}</span>
+            <span className="text__content__black__b__16">{count}</span>
             <span
-                onClick={() => console.log("ADD")}
+                onClick={handleAdd}
                 style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: "25px",
+                    height: "25px",
+                    borderRadius: "50%",
+                    background: GREY_WHITE,
                     cursor: "pointer"
                 }}
             >
-                <Icon24Add color={BLACK}/>
+                <Icon24Add width={16} height={16} color={BLACK}/>
             </span>
         </div>
     )

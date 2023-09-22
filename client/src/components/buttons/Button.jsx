@@ -11,7 +11,8 @@ export const Button = (
             style={{
                 background: color,
                 marginLeft: marginLeft,
-                marginTop: marginTop
+                marginTop: marginTop,
+                height: height
             }}
         >
             <span
@@ -19,7 +20,7 @@ export const Button = (
                 style={{
                     paddingLeft: padding,
                     paddingRight: padding,
-                    height: height
+
                 }}
             >{name}</span>
         </div>

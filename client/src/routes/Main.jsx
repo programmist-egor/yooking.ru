@@ -6,24 +6,49 @@ import {BenefitBlock} from "../components/blocks/BenefitBlock";
 import {MobileApp} from "../components/blocks/MobileApp";
 import {FollowUs} from "../components/blocks/FollowUs";
 import banner from "../img/banner-main.jpg"
+import React, {useEffect} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {checkInHandler, checkOutHandler, initDateRangeHandler} from "../store/Search";
+import {DataRange} from "../components/сalendar/DataRange";
+import {dateFormater} from "../components/hooks/dataFormater";
 
 
-export const Main = () => {
+export const Main = ({closeModals}) => {
+    const cityOrHotel = useSelector(state => state.search.cityOrHotel)
+    const dispatch = useDispatch()
+
+    useEffect(() => {
+        if(cityOrHotel.dataRange.checkIn === "" &&  cityOrHotel.dataRange.checkOut === "") {
+            const startFull = new Date()
+            const endFull = new Date();
+            endFull.setDate(endFull.getDate() + 2);
+
+            const start = dateFormater(startFull)
+            const end = dateFormater(endFull)
+            dispatch(initDateRangeHandler())
+            dispatch(checkInHandler(start))
+            dispatch(checkOutHandler(end))
+        }
+    }, [])
 
     return (
         <div className="container">
             <div className="header">
                 <Header/>
             </div>
-            <div className="body">
+            <div className="center">
                 <BannerSearch
                     header={"ЖИВИТЕ ТАМ, ГДЕ НРАВИТСЯ"}
                     banner={banner}
+                    closeModals={closeModals}
                 />
-                <WhereToGo/>
-                <BenefitBlock/>
-                <MobileApp/>
-                <FollowUs/>
+                <div className="column" style={{margin: "1%"}}>
+                    <WhereToGo closeModals={closeModals}/>
+                    <BenefitBlock/>
+                    <MobileApp/>
+                </div>
+
+                {/*<FollowUs/>*/}
             </div>
             <div className="footer">
                 <Footer/>

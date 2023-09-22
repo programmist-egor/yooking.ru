@@ -4,71 +4,80 @@ import img9 from "../../img/blocks/9.png"
 
 export const BenefitBlock = () => {
     return (
-        <div
-            className="column__c benefit__block"
-            style={{
-                paddingLeft: "15%",
-                paddingRight: "15%"
-            }}
-        >
-            <div className="row__c__c">
-                <h2 className="text__content__black__b__32">Путешествуйте вместе с нами</h2>
-            </div>
-            <div
-                className="row__sa__c"
-                style={{
-                    marginTop: "80px",
-                    width: "100%",
-                }}
-            >
-                <div className="column__c">
-                    <img
-                        src={img8}
-                        alt="8"
-                        width={80}
-                        height={80}
-                    />
-                    <span
-                        className="text__content__black__b__24"
-                        style={{
-                            marginTop: "20px",
-                        }}
-                    >Гарантия цены</span>
-                </div>
-                <div
-                    className="column__c"
-                    style={{
-                        marginLeft: "70px"
-                    }}
-                >
-                    <img
-                        src={img7}
-                        alt="7"
-                        width={80}
-                        height={80}
-                    />
-                    <span
-                        className="text__content__black__b__24"
-                        style={{
-                            marginTop: "20px",
-                        }}
-                    >Кэшбэк за проживание</span>
-                </div>
-                <div className="column__c">
-                    <img
-                        src={img9}
-                        alt="9"
-                        width={80}
-                        height={80}
-                    />
-                    <span
-                        className="text__content__black__b__24"
-                        style={{
-                            marginTop: "20px",
-                        }}
-                    >Всегда на связи E-SIM</span>
+        <div>
+            <div className="column__c__c benefit__block desktop__benefit__block">
+                <h2 className="text__content__black__b__26">Путешествуйте вместе с нами</h2>
+                <div className="row__sa__c" style={{marginTop: "10px", width: "100%",}}>
+                    <div className="column__c__c" style={{margin: "20px",}}>
+                        <img
+                            src={img8}
+                            alt="8"
+                            width={50}
+                            height={50}
+                        />
+                        <span className="text__content__black__b__20" style={{marginTop: "20px", textAlign: "center"}}
+                        >Гарантия цены</span>
+                    </div>
+                    <div className="column__c__c" style={{margin: "20px"}}>
+                        <img
+                            src={img7}
+                            alt="7"
+                            width={50}
+                            height={50}
+                        />
+                        <span className="text__content__black__b__20" style={{marginTop: "20px", textAlign: "center"}}
+                        >Кэшбэк за проживание</span>
+                    </div>
+                    <div className="column__c__c" style={{margin: "20px",}}>
+                        <img
+                            src={img9}
+                            alt="9"
+                            width={50}
+                            height={50}
+                        />
+                        <span className="text__content__black__b__20" style={{marginTop: "20px", textAlign: "center"}}
+                        >Всегда на связи E-SIM</span>
+                    </div>
                 </div>
             </div>
+
+
+            <div className="column__c__c benefit__block tablet__benefit__block">
+                <h2 className="text__content__black__b__16">Путешествуйте вместе с нами</h2>
+                <div className="row__wrap__c__c" style={{marginTop: "10px", width: "100%",}}>
+                    <div className="column__c__c" style={{margin: "20px",}}>
+                        <img
+                            src={img8}
+                            alt="8"
+                            width={40}
+                            height={40}
+                        />
+                        <span className="text__content__black__b__16" style={{marginTop: "20px", textAlign: "center"}}
+                        >Гарантия цены</span>
+                    </div>
+                    <div className="column__c__c" style={{margin: "20px"}}>
+                        <img
+                            src={img7}
+                            alt="7"
+                            width={40}
+                            height={40}
+                        />
+                        <span className="text__content__black__b__16" style={{marginTop: "20px", textAlign: "center"}}
+                        >Кэшбэк за проживание</span>
+                    </div>
+                    <div className="column__c__c" style={{margin: "20px",}}>
+                        <img
+                            src={img9}
+                            alt="9"
+                            width={40}
+                            height={40}
+                        />
+                        <span className="text__content__black__b__16" style={{marginTop: "20px", textAlign: "center"}}
+                        >Всегда на связи E-SIM</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
     )
 }

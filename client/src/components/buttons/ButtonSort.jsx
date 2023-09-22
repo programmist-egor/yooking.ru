@@ -1,35 +1,34 @@
-import {Button} from "./Button";
-import {BLACK} from "../../theme/colors";
+import {GREY} from "../../theme/colors";
 import {Sort} from "../modals/Sort";
-import {useDispatch, useSelector} from "react-redux";
-import {modalSortHandler} from "../../store/Main";
+import {useState} from "react";
+import {Icon24ChevronDown} from "@vkontakte/icons";
 
 export const ButtonSort = () => {
-    const dispatch = useDispatch()
-    const modalSort = useSelector(state => state.main.modalSort);
+
+    const [modalSort, setModalSort] = useState(false)
     return (
-        <div style={{
-            position: "relative"
-        }}>
-            <div
-                className="row__c__fe"
-                style={{
-                    marginTop: "10px",
-                    marginBottom: "10px"
-                }}
-            >
-                <Button
-                    name={"Сортировать"}
-                    style={"sort"}
-                    styleText={"text__content__white__14"}
-                    handler={() => dispatch(modalSortHandler(true))}
-                    padding={20}
+        <div>
+            <div style={{position: "relative", width: "100%"}}>
+                <div
+                    className="sort"
+                    style={{
+                        marginTop: "10px",
+                        marginBottom: "10px",
+                        cursor: "pointer",
+                        width: "180px"
+                    }}
+                    onClick={() => setModalSort(!modalSort)}
+                >
+                    <span className="text__content__white__14" style={{marginRight: "10px"}}>Сортировать</span>
+                    <span className={modalSort ? 'iconDate' : "iconBtn"}>
+                        <Icon24ChevronDown color={GREY}/>
+                    </span>
+                </div>
+                <Sort
+                    style={modalSort ? "modal__sort  tablet__661__filter " : "modal__none"}
+                    handleSort={() => setModalSort(!modalSort)}
                 />
             </div>
-            <Sort
-                style={modalSort ? "modal__sort" : "modal__none"}
-                handleLang={() => dispatch(modalSortHandler(false))}
-            />
         </div>
     )
 }
