@@ -3,7 +3,7 @@ import {
     Icon24UserAddOutline,
     Icon24BuildingOutline
 } from '@vkontakte/icons';
-import {BLACK, WHITE} from "../../theme/colors";
+import {BLACK} from "../../theme/colors";
 import {Link} from "react-router-dom";
 
 
@@ -15,7 +15,7 @@ export const Menu = ({style, handleMenu}) => {
             <div className="modal__content__menu">
                 <div className="modal__body">
                     <Link
-                        to={"/Войти"}
+                        to={"/api/login"}
                         className="row__c__fs"
                         onClick={handleMenu}
                         style={{
@@ -31,7 +31,7 @@ export const Menu = ({style, handleMenu}) => {
                         >Войти</span>
                     </Link>
                     <Link
-                        to={"/Зарегистрироваться"}
+                        to={"/api/registration"}
                         className="row__c__fs"
                         onClick={handleMenu}
                         style={{
@@ -48,7 +48,7 @@ export const Menu = ({style, handleMenu}) => {
                         >Зарегистрироваться</span>
                     </Link>
                     <Link
-                        to={"/Зарегистрировать_объект"}
+                        to={"extranet.yooking.ru"}
                         className="row__c__fs"
                         onClick={handleMenu}
                         style={{

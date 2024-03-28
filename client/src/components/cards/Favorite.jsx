@@ -1,29 +1,83 @@
 import {useDispatch, useSelector} from "react-redux";
 import {SliderBig} from "../slider/SliderBig";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {Icon24Delete, Icon24ListBulletOutline, Icon24MoneyTransfer} from '@vkontakte/icons';
 import {ORANGE, RED, WHITE} from "../../theme/colors";
 import {ButtonIcon} from "../buttons/ButtonIcon";
-import {dataHotelHandler} from "../../store/HotelItem";
-import {dataHotelUserHandler, delFavoriteUserDataHandler} from "../../store/ClientData";
+import {dataHotelUserHandler} from "../../store/ClientData";
+import PhotoObjectService from "../../services/photo-object.service";
+import FavoriteService from "../../services/favorite.service";
+import {
+    setCategoryHandler,
+    setDataObjectBooking,
+    setHotelIdHandler,
+    setNumberBookingHandler
+} from "../../store/HotelsList";
+import NumberService from "../../services/number.service";
+import {parseJSONPropertiesInArray} from "../../utils/json-parse-object";
+import CategoryService from "../../services/category.service";
 
-export const Favorite = ({header, price, width, address, item, id}) => {
+export const Favorite = ({header, width, address, item, hotelId, object, setObject}) => {
     const dispatch = useDispatch()
+    const [dataNumbersList, setDataNumbersList] = useState([])
+    const [objectPhotos, setObjectPhotos] = useState([]);
+    const [averagePrice, setAveragePrice] = useState("");
 
+
+    useEffect(() => {
+        if (objectPhotos.length === 0) {
+            PhotoObjectService.getAllPhotosObject("favorites", hotelId)
+                .then(data => setObjectPhotos(data))
+        }
+        if (dataNumbersList.length === 0) {
+            NumberService.getAllNumbers("favorites", hotelId)
+                .then(data => {
+                   const resultNumb = parseJSONPropertiesInArray(data)
+                    // Фильтрация номеров по hotelId
+                    const filteredPrices = resultNumb.filter(price => price.hotelId === hotelId);
+
+                    if (filteredPrices.length > 0) {
+                        const pricesAboveZero = filteredPrices.filter(price => price.priceBase > 0);
+                        if (pricesAboveZero.length > 0) {
+                            const minPrice = Math.min(...pricesAboveZero.map(price => price.priceBase));
+                            setAveragePrice(minPrice);
+                        } else {
+                            console.log("Все цены меньше или равны нулю");
+                        }
+                    } else {
+                        console.log("Нет данных для указанного hotelId");
+                    }
+                })
+        }
+
+    }, [])
+
+    const removeFavorite = () => {
+        const deleteFavorite = object.filter(fav => +fav.hotelId !== hotelId)
+        setObject(deleteFavorite)
+        FavoriteService.deleteFavorite("hotels_map", hotelId)
+            .then(data => console.log("Del favorite", data))
+            .catch(e => console.log(e))
+    };
+
+    // const bookingNumber = () => {
+    //     dispatch(setCategoryHandler(category))
+    //     dispatch(setDataObjectBooking(object))
+    //     dispatch(setNumberBookingHandler(number))
+    // }
 
     return (
         <div>
             <div className="row__fs__fs borderBottom desktop__booking__hotel__block"
-                 style={{paddingBottom: "15px", flexWrap: "wrap", marginBottom: "20px"}} key={id}>
+                 style={{paddingBottom: "15px", flexWrap: "wrap", marginBottom: "20px"}}>
                 {/*SLIDER*/}
                 <SliderBig
-                    dataHotelNumber={item}
-                    height={"150px"}
-                    maxWidth={"100%"}
                     borderRadius={"10px"}
-                    minWidth={"250px"}
-                    mb={"5px"}
-                    padding={"5px"}
+                    height={"180px"}
+                    minWidth={"260px"}
+                    padding={5}
+                    maxWidth={"250px"}
+                    photos={objectPhotos}
                 />
                 <div className="column__sb" style={{marginLeft: "10px"}}>
                     <div className="row__c__fs ">
@@ -31,7 +85,7 @@ export const Favorite = ({header, price, width, address, item, id}) => {
                     </div>
                     <div className="column__fs__c">
                         <span className="text__content__grey__12" style={{margin: "5px"}}>
-                            ID {id}
+                            ID {hotelId}
                         </span>
                     </div>
                     <div className="row__sb__c" style={{marginLeft: "5px"}}>
@@ -41,13 +95,13 @@ export const Favorite = ({header, price, width, address, item, id}) => {
                             </div>
                             <div className="row__c__fs">
                                 <span
-                                    className="text__content__black__b__12">{address.ru === undefined ? "" : address.ru || address.en}</span>
+                                    className="text__content__black__b__12">{address}</span>
                             </div>
                             <div className="row__c__fs" style={{marginTop: "5px"}}>
                                 <span className="text__content__grey__12">Цена за сутки</span>
                             </div>
                             <div className="row__c__fs">
-                                <span className="text__content__black__b__12">{price} ₽</span>
+                                <span className="text__content__black__b__12">от {averagePrice} ₽</span>
                             </div>
                         </div>
                     </div>
@@ -56,40 +110,39 @@ export const Favorite = ({header, price, width, address, item, id}) => {
                         <ButtonIcon
                             style={"moreBookingBtn"}
                             name={"Подробнее"}
-                            link={"/Отель"}
+                            link={"/hotel"}
                             icon={<Icon24ListBulletOutline color={WHITE} width={20} height={20}/>}
-                            handler={() => dispatch(dataHotelHandler(item))}
+                            handler={() => localStorage.setItem("hotelId", hotelId)}
                             styleText={"text__content__white__12"}
                         />
-                        <ButtonIcon
-                            style={"bookBookingBtn"}
-                            name={"Забронировать"}
-                            icon={<Icon24MoneyTransfer color={WHITE} width={20} height={20}/>}
-                            handler={() => dispatch(dataHotelUserHandler(item))}
-                            styleText={"text__content__white__12"}
-                            link={"/Личный_кабинет"}
-                        />
+                        {/*<ButtonIcon*/}
+                        {/*    style={"bookBookingBtn"}*/}
+                        {/*    name={"Забронировать"}*/}
+                        {/*    icon={<Icon24MoneyTransfer color={WHITE} width={20} height={20}/>}*/}
+                        {/*    handler={() => bookingNumber()}*/}
+                        {/*    styleText={"text__content__white__12"}*/}
+                        {/*    link={"/person"}*/}
+                        {/*/>*/}
                         <ButtonIcon
                             style={"delBookingBtn"}
                             name={"Удалить"}
                             icon={<Icon24Delete color={WHITE} width={20} height={20}/>}
-                            handler={() => dispatch(delFavoriteUserDataHandler(id))}
+                            handler={() => removeFavorite()}
                             styleText={"text__content__white__12"}
                         />
                     </div>
                 </div>
             </div>
             <div className="column__fs borderBottom mobile__booking__hotel__block"
-                 style={{paddingBottom: "15px",  marginBottom: "20px"}} key={id}>
+                 style={{paddingBottom: "15px", marginBottom: "20px"}}>
                 {/*SLIDER*/}
                 <SliderBig
-                    dataHotelNumber={item}
-                    height={"150px"}
-                    maxWidth={"100%"}
                     borderRadius={"10px"}
-                    minWidth={"250px"}
-                    mb={"5px"}
-                    padding={"5px"}
+                    height={"180px"}
+                    minWidth={"260px"}
+                    padding={5}
+                    maxWidth={"250px"}
+                    photos={objectPhotos}
                 />
                 <div className="column__sb" style={{marginLeft: "10px"}}>
                     <div className="row__c__fs ">
@@ -97,7 +150,7 @@ export const Favorite = ({header, price, width, address, item, id}) => {
                     </div>
                     <div className="column__fs__c">
                         <span className="text__content__grey__12" style={{margin: "5px"}}>
-                            ID {id}
+                            ID {hotelId}
                         </span>
                     </div>
                     <div className="row__sb__c" style={{marginLeft: "5px"}}>
@@ -107,13 +160,13 @@ export const Favorite = ({header, price, width, address, item, id}) => {
                             </div>
                             <div className="row__c__fs">
                                 <span
-                                    className="text__content__black__b__12">{address.ru === undefined ? "" : address.ru || address.en}</span>
+                                    className="text__content__black__b__12">{address}</span>
                             </div>
                             <div className="row__c__fs" style={{marginTop: "5px"}}>
                                 <span className="text__content__grey__12">Цена за сутки</span>
                             </div>
                             <div className="row__c__fs">
-                                <span className="text__content__black__b__12">{price} ₽</span>
+                                <span className="text__content__black__b__12">от {averagePrice} ₽</span>
                             </div>
                         </div>
                     </div>
@@ -121,25 +174,25 @@ export const Favorite = ({header, price, width, address, item, id}) => {
                     <div className="row__sb__c">
                         <ButtonIcon
                             style={"moreBookingBtn"}
-                            name={width >= 0 && width <= 425 ? "" :"Подробнее"}
-                            link={"/Отель"}
+                            name={width >= 0 && width <= 425 ? "" : "Подробнее"}
+                            link={"/hotel"}
                             icon={<Icon24ListBulletOutline color={WHITE} width={20} height={20}/>}
-                            handler={() => dispatch(dataHotelHandler(item))}
+                            handler={() => localStorage.setItem("hotelId", hotelId)}
                             styleText={"text__content__white__12"}
                         />
-                        <ButtonIcon
-                            style={"bookBookingBtn"}
-                            name={width >= 0 && width <= 425 ? "" :"Забронировать"}
-                            icon={<Icon24MoneyTransfer color={WHITE} width={20} height={20}/>}
-                            handler={() => dispatch(dataHotelUserHandler(item))}
-                            styleText={"text__content__white__12"}
-                            link={"/Личный_кабинет"}
-                        />
+                        {/*<ButtonIcon*/}
+                        {/*    style={"bookBookingBtn"}*/}
+                        {/*    name={width >= 0 && width <= 425 ? "" : "Забронировать"}*/}
+                        {/*    icon={<Icon24MoneyTransfer color={WHITE} width={20} height={20}/>}*/}
+                        {/*    handler={() => dispatch(dataHotelUserHandler(item))}*/}
+                        {/*    styleText={"text__content__white__12"}*/}
+                        {/*    link={"/person"}*/}
+                        {/*/>*/}
                         <ButtonIcon
                             style={"delBookingBtn"}
-                            name={width >= 0 && width <= 425 ? "" :"Удалить"}
+                            name={width >= 0 && width <= 425 ? "" : "Удалить"}
                             icon={<Icon24Delete color={WHITE} width={20} height={20}/>}
-                            handler={() => dispatch(delFavoriteUserDataHandler(id))}
+                            handler={() => removeFavorite()}
                             styleText={"text__content__white__12"}
                         />
                     </div>

@@ -1,0 +1,76 @@
+version: '3.8'
+services:
+  extranet-db:
+    image: mysql
+    env_file:
+      - .env
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${ROOT_PASSWORD}
+      - MYSQL_HOST=${HOST}
+      - MYSQL_DATABASE=${EXTRANETDB}
+    ports:
+      - 3307:3306
+      - 33070:33060
+    volumes:
+      - ./extranet-db-data:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - extranet-db
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3002:80
+    networks:
+      - app_network
+    volumes:
+      - ./client:/usr/src/app:rw
+
+  server:
+    env_file:
+      - .env
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    ports:
+      - 5002:5002
+    environment:
+      - MYSQL_HOST=extranet-db
+      - MYSQL_DATABASE=extranet
+      - MYSQL_PASSWORD=rDT5NLbc2&oE
+      - MYSQL_USERNAME=extranet
+      - MYSQL_PORT=3306
+    networks:
+      - app_network
+    depends_on:
+      - extranet-db
+    volumes:
+      - ./server:/usr/src/app:rw
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx_client.conf:/etc/nginx/conf.d
+      - ./nginx_server.conf:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+    depends_on:
+      - client
+      - server
+    networks:
+      - app_network
+
+volumes:
+  extranet-db:
+
+networks:
+  app_network:
+    driver: bridge

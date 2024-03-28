@@ -8,11 +8,11 @@ export const ListSearch = ({style, handle, city}) => {
                     <div className="column__fs" style={{marginBottom: "10px"}}>
                         {city.map(item => (
                             <span
-                                key={item.id}
-                                onClick={() => handle({name: item.fullName, id: item.id, hotelsCount: item.hotelsCount, location: item.location,}, "city")}
+                                key={item.hotelId}
+                                onClick={() => handle("city",{city: item.city, hotelId: item.hotelId, location: item.location})}
                                 className="text__content__black__14 list__search"
                             >
-                                {item.fullName}
+                                {item.city}
                             </span>
                         ))}
                     </div>

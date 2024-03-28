@@ -1,0 +1,34 @@
+# Используем базовый образ Node.js для клиента
+FROM node:18.16.1-bullseye-slim as build-stage
+
+# Устанавливаем рабочую директорию для клиентской части
+WORKDIR /client
+
+# Копируем только файл package.json для установки зависимостей
+COPY package*.json ./
+
+RUN npm install
+# Устанавливаем зависимости
+RUN npm ci --only=production
+
+# Копируем исходный код клиентской части
+COPY . .
+
+# Создаем production-сборку
+RUN npm run build
+
+# Для финальной сборки использовать Nginx для предоставления статических файлов
+FROM nginx:alpine
+
+# Очищаем директорию /etc/nginx/conf.d/
+RUN rm /etc/nginx/conf.d/*
+
+# Копируем собранные файлы из предыдущего этапа (build-stage)
+COPY --from=build-stage /client/build /usr/share/nginx/html
+COPY nginx_client.conf /etc/nginx/conf.d
+COPY nginx_server.conf /etc/nginx/conf.d
+# Указываем порт, который будет использоваться во время выполнения контейнера
+EXPOSE 80
+
+# Команда для запуска Nginx внутри контейнера
+CMD ["nginx", "-g", "daemon off;"]

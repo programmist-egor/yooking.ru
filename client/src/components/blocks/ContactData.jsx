@@ -1,62 +1,117 @@
-import {GREY, RED, WHITE} from "../../theme/colors";
+import {GREEN, GREY, RED, WHITE} from "../../theme/colors";
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {wordDeclension, wordDeclensionNight} from "../utils/word-declensions";
+import {wordDeclension, wordDeclensionNight} from "../../utils/word-declensions";
 import InputMask from "react-input-mask";
 import {
-    checkInHandler,
-    checkOutHandler,
+
     dateClientHandler,
-    checkHandler, finishedBookingHandler, bookingUserDataHandler
+    finishedBookingHandler,
 } from "../../store/ClientData";
 import {SliderBig} from "../slider/SliderBig";
 import {Icon24BriefcaseOutline, Icon24ChevronDown} from "@vkontakte/icons";
-import {DataRange} from "../сalendar/DataRange";
+import {DataRange} from "../calendar/DataRange";
 import {GuestHotel} from "../search/GuestHotel";
-import {showCalendarHandler, showGuestHandler} from "../../store/Search";
+import {handlerDataRange, showCalendarHandler, showGuestHandler} from "../../store/Search";
 import {ButtonIcon} from "../buttons/ButtonIcon";
-import {Box, FormControl, MenuItem, Select} from "@mui/material";
+import {optionCheckIn, optionCheckOut, optionPayBooking, optionPrepayment} from "../../utils/varible";
+import {CheckInSelect} from "../custom-select/CheckInSelect";
+import BookingService from "../../services/booking.service";
+import {getCurrentDate} from "../../utils/createDataNow";
+import {formatMoney} from "../../utils/formating-money";
+import CustomSelect from "../custom-select/CustomSelect";
+import {ListNumberCard} from "../cards/ListNumberCard";
+import UsersService from "../../services/users.service";
+import {setDataBookingHandler} from "../../store/dataBooking";
+import {checkDuplicateId, generateNumericId} from "../../utils/generatorId";
+import {parseJSONProperties, parseJSONPropertiesInArray} from "../../utils/json-parse-object";
+import {
+    validateCheckInCheckOut,
+    validateLastName,
+    validateName,
+    validateObject
+} from "../../validation/validation-edit-booking";
 
 export const ContactData = () => {
     const dispatch = useDispatch()
-    const clientData = useSelector(state => state.client__data.dateClient)
-    const check = useSelector(state => state.client__data.checkInput)
-    const clientCheckIn = useSelector(state => state.client__data.checkIn)
-    const clientCheckOut = useSelector(state => state.client__data.checkOut)
-    const dataHotel = useSelector(state => state.client__data.dataHotel)
-    const cityOrHotel = useSelector(state => state.search.cityOrHotel)
+    const number = useSelector(state => state.hotels_list.dataNumberBooking)
+    const dataObjectBooking = useSelector(state => state.hotels_list.dataObjectBooking)
+    const dataCategoryBooking = useSelector(state => state.hotels_list.dataCategoryBooking)
+    const userId = useSelector((state) => state.auth.userId);
+    const [user, setUser] = useState(null)
+    const requestParameters = useSelector(state => state.search.cityOrHotel)
     const showCalendar = useSelector(state => state.search.showCalendar)
     const showGuest = useSelector(state => state.search.showGuest)
     const [openDataRang, setOpenDataRang] = useState(false)
     const [openGuest, setGuest] = useState(false)
     const [checkOld, setCheckOld] = useState(false)
-    const [checkPhone, setCheckPhone] = useState(false);
-    const [checkEmail, setCheckEmail] = useState(false);
-    const [checkName, setCheckName] = useState(false);
-    const [checkCheckIn, setCheckCheckIn] = useState(false);
-    const [checkCheckOut, setCheckCheckOut] = useState(false);
-    const bookingUserData = useSelector(state => state.client__data.bookingUserData)
-    // const [check, setCheck] = useState(false);
+
+    const [name, setName] = useState("")
+    const [lastName, setLastName] = useState("")
+    const [phone, setPhone] = useState("")
+    const [email, setEmail] = useState("")
+    const [prepayment, setPrepayment] = useState(0)
+    const [typePayment, setTypePayment] = useState({name: "Выберите", value: "no choose"})
+    const [bookingAllId, setBookingAllId] = useState(null)
+    const [bookingAll, setBookingAll] = useState([])
+
     const [width, setWidth] = useState(window.innerWidth);
     const [height, setHeight] = useState(window.innerHeight);
 
-    const validateEmail = (email) => {
-        return email.match(
-            /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-        );
-    };
+    const [msg, setMsg] = useState("");
+    const [isMsg, setIsMsg] = useState(false);
+    const [dateError, setDateError] = useState(false)
+    const [successData, setSuccessData] = useState("")
+
+    useEffect(() => {
+        if (!user) {
+            UsersService.getUserYooking("person", userId)
+                .then(user => {
+                    setUser(parseJSONProperties(user))
+                    setName(user.name)
+                    setLastName(user.lastName)
+                    setPhone(user.phone)
+                    setEmail(user.email)
+                })
+        }
+        if (bookingAllId === null && bookingAll.length === 0) {
+            BookingService.getAllBookingByObject("person", number.hotelId)
+                .then(data => {
+                    const parsedData = parseJSONPropertiesInArray(data);
+                    console.log("parsedData", parsedData);
+                    setBookingAll(parsedData)
+                    const newArrayId = parsedData.map(object => object.id)
+                    setBookingAllId(newArrayId)
+                })
+        }
+    }, [])
 
 
-    const nameOnChange = (e) => {
-        dispatch(dateClientHandler({id: "name", value: e.target.value}))
-    }
-    const phoneOnChange = (e) => {
-        dispatch(dateClientHandler({id: "phone", value: e.target.value}))
-    }
-    const emailOnChange = (e) => {
-        dispatch(dateClientHandler({id: "email", value: e.target.value}))
+
+    const msgSave = (msg) => {
+        setMsg(msg)
+        setIsMsg(true)
+        setTimeout(() => {
+            setMsg("")
+            setIsMsg(false)
+        }, 5000)
     }
 
+    const errorChecked = (field, hasError) => {
+        setError((errors) => ({
+            ...errors,
+            [field]: hasError
+        }));
+    }
+
+
+    const [error, setError] = useState(
+        {
+            name: false,
+            lastName: false,
+            typePayment: false
+        }
+    )
 
     const handlerDate = () => {
         setOpenDataRang(!openDataRang)
@@ -68,7 +123,7 @@ export const ContactData = () => {
         dispatch(showGuestHandler(!showGuest))
     }
     const checkingHandler = () => {
-        if (cityOrHotel.guest.child.map(child => child.old === "Возраст")[0]) {
+        if (requestParameters.guest.child.map(child => child.old === "Возраст")[0]) {
             setCheckOld(true)
         } else {
             setGuest(!openGuest)
@@ -77,95 +132,170 @@ export const ContactData = () => {
         }
     }
 
-
-    // Функция для форматирования числа в денежный формат
-    function formatMoney(number) {
-        // Преобразуем число в строку
-        let str = number.toString();
-        // Проверяем, есть ли десятичная точка или запятая
-        let dotIndex = str.indexOf(".");
-        let commaIndex = str.indexOf(",");
-        // Если есть точка, то разделяем строку на целую и дробную части
-        if (dotIndex > -1) {
-            let integerPart = str.slice(0, dotIndex);
-            let decimalPart = str.slice(dotIndex + 1);
-            // Добавляем пробелы между тысячами в целой части
-            integerPart = integerPart.replace(/\d{1,3}(?=(\d{3})+(?!\d))/g, "$& ");
-            // Возвращаем отформатированную строку
-            return integerPart + "," + decimalPart;
-        }
-        // Если есть запятая, то разделяем строку на целую и дробную части
-        else if (commaIndex > -1) {
-            let integerPart = str.slice(0, commaIndex);
-            let decimalPart = str.slice(commaIndex + 1);
-            // Добавляем пробелы между тысячами в целой части
-            integerPart = integerPart.replace(/\d{1,3}(?=(\d{3})+(?!\d))/g, "$& ");
-            // Возвращаем отформатированную строку
-            return integerPart + "." + decimalPart;
-        }
-        // Если нет точки и запятой, то просто добавляем пробелы между тысячами
-        else {
-            return str.replace(/\d{1,3}(?=(\d{3})+(?!\d))/g, "$& ");
+    const dataSearchHandler = (type, value) => {
+        if (type === "DataRange") {
+            dispatch(handlerDataRange(value))
+            handlerDate()
         }
     }
 
+    function isDateAvailable(bookingAll, categoryId, dataBooking, numberId, bookingList) {
+        const filterBooking = bookingAll.filter(item => item.numberId === numberId);
+        const isDateOccupied = filterBooking.some(booking => {
+            const checkInDate = new Date(booking.checkIn);
+            const checkOutDate = new Date(booking.checkOut);
+            const currentCheckInDate = new Date(dataBooking.checkIn);
+            const currentCheckOutDate = new Date(dataBooking.checkOut);
 
-    const bookingHandler = () => {
-        if (clientData.name !== "") {
-            setTimeout(() => {
-                setCheckName(false)
-            }, 5000)
+            // Проверяем, если хотя бы одна дата в диапазоне занята
+            return (
+                (currentCheckInDate >= checkInDate && currentCheckInDate <= checkOutDate) ||
+                (currentCheckOutDate >= checkInDate && currentCheckOutDate <= checkOutDate) ||
+                (currentCheckInDate <= checkInDate && currentCheckOutDate >= checkOutDate)
+            );
+        });
+
+        if (isDateOccupied) {
+            console.log("Дата или диапазон дат уже заняты");
+            return false; // Дата или диапазон дат заняты
         } else {
-            setCheckName(true)
+            console.log("Дата или диапазон дат свободны");
+            return true; // Дата или диапазон дат свободны
         }
-        const regex = /^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/;
-        if (regex.test(clientData.phone)) {
-            setTimeout(() => {
-                setCheckPhone(false)
-            }, 5000)
-        } else {
-            setCheckPhone(true)
-        }
-        if (validateEmail(clientData.email) && clientData.email !== "") {
-            setTimeout(() => {
-                setCheckEmail(false)
-            }, 5000)
-        } else {
-            setCheckEmail(true)
-        }
-        if (clientCheckIn !== "") {
-            setTimeout(() => {
-                setCheckCheckIn(false)
-            }, 5000)
-        } else {
-            setCheckCheckIn(true)
-        }
-        if (clientCheckOut !== "") {
-            setTimeout(() => {
-                setCheckCheckOut(false)
-            }, 5000)
-        } else {
-            setCheckCheckOut(true)
+    }
+
+    useEffect(() => {
+        const validateAllData = async () => {
+            await validateName(name)
+                .then(() => {
+                    errorChecked('name', false)
+                })
+                .catch(error => {
+                    errorChecked('name', true)
+                });
+            await validateLastName(lastName)
+                .then(() => {
+                    errorChecked('lastName', false)
+                })
+                .catch(error => {
+                    errorChecked('lastName', true)
+                });
+
+            await validateObject(typePayment)
+                .then(() => {
+                    errorChecked('typePayment', false)
+                })
+                .catch(error => {
+                    errorChecked('typePayment', true)
+                });
         }
 
-        //Добавление объекта в бронирование
-        dispatch(bookingUserDataHandler(
-            {
-                id: bookingUserData.length + 1,
-                guest: cityOrHotel.guest.adult  + cityOrHotel.guest.child.length + " " + wordDeclension(cityOrHotel.guest.adult + cityOrHotel.guest.child.length),
-                dateRange: cityOrHotel.dataRange.checkIn + " - " + cityOrHotel.dataRange.checkOut + " " + cityOrHotel.dataRange.month,
-                price: formatMoney(dataHotel.last_price_info.price_pn * cityOrHotel.dataRange.countNight),
-                countNight: cityOrHotel.dataRange.countNight,
-                idObject: dataHotel.idObject,
-                value: dataHotel
-            }))
-        //Завершение бронирования
-        dispatch(checkHandler(true))
-        //Открытие модульного окна об бронировании
-        dispatch(finishedBookingHandler(true))
 
-        // dispatch(checkHandler(false))
+        const isCheckedDate = isDateAvailable(bookingAll, number.categoryId, {
+            checkIn: requestParameters.checkIn,
+            checkOut: requestParameters.checkOut
+        }, number.id, number.bookingList)
 
+        if (isCheckedDate) {
+            setDateError(false)
+        } else {
+            setDateError(true)
+        }
+
+        validateAllData();
+    },[typePayment, requestParameters])
+
+
+
+
+    const bookingHandler = async () => {
+        const errorValues = Object.values(error);
+        const bookingId = checkDuplicateId(bookingAllId, generateNumericId());
+
+
+        if (!dateError) {
+            if (!errorValues.includes(true)) {
+                const data = {
+                    id: bookingId,
+                    hotelId: number.hotelId,
+                    numberId: number.id,
+                    categoryId: number.categoryId,
+                    name: name,
+                    lastName: lastName,
+                    city: number.city,
+                    phone: phone,
+                    note: "",
+                    status: JSON.stringify({name: "Новое", value: "#01B0F1"}),
+                    nameObject: dataObjectBooking?.name,
+                    nameNumber: number?.name,
+                    categoryName: dataCategoryBooking?.type,
+                    checkInTime: dataObjectBooking.checkIn,
+                    checkOutTime: dataObjectBooking.checkOut,
+                    checkIn: requestParameters.checkIn,
+                    checkOut: requestParameters.checkOut,
+                    dataRange: JSON.stringify(requestParameters.dataRange),
+                    guestCount: requestParameters.guest.adult + requestParameters.guest.child.length,
+                    guest: JSON.stringify(requestParameters.guest),
+                    amount: formatMoney(requestParameters.dataRange.countNight * number?.priceBase),
+                    priceNumber: number?.priceBase,
+                    typePayment: JSON.stringify(typePayment),
+                    prepayment: prepayment,
+                    email: email,
+                    date: getCurrentDate(),
+                }
+
+                const updateNumber = {
+                    ...number,
+                    roomAmenitiesOption: JSON.stringify(number.roomAmenitiesOption),
+                    has_wifi: JSON.stringify(number.has_wifi),
+                    guestCount: JSON.stringify(number.guestCount),
+                    bookingList: JSON.stringify([
+                        ...(Array.isArray(number.bookingList) ? number.bookingList : []),
+                        {
+                            id: bookingId,
+                            checkIn: requestParameters.checkIn,
+                            checkOut: requestParameters.checkOut,
+                            checkInTime: dataObjectBooking.checkIn,
+                            checkOutTime: dataObjectBooking.checkOut,
+                        }
+                    ])
+                };
+                const updateUser = {
+                    ...user,
+                    bookingList: JSON.stringify([
+                        ...(Array.isArray(user.bookingList) ? user.bookingList : []),
+                        {
+                            id: bookingId,
+                            numberId: number.id,
+                            checkIn: requestParameters.checkIn,
+                            checkOut: requestParameters.checkOut,
+                            checkInTime: dataObjectBooking.checkIn,
+                            checkOutTime: dataObjectBooking.checkOut,
+                        }
+                    ])
+                };
+                setSuccessData("Данные сохранены!")
+
+                setTimeout(() => {
+                    setSuccessData("")
+                }, 2000)
+
+                dispatch(setDataBookingHandler({numberId: number.id, dataBooking: data, updateNumber: updateNumber,userId: user.id, updateUser: updateUser }))
+
+            } else {
+                console.log("error", error);
+                msgSave("Присутствуют ошибки, данные не сохранены.")
+            }
+        } else {
+            setDateError(true)
+            setTimeout(() => {
+                setDateError(false)
+            }, 3000)
+
+        }
+
+        // //Открытие модульного окна об бронировании
+        // dispatch(finishedBookingHandler(true))
     }
 
     useEffect(() => {
@@ -181,257 +311,237 @@ export const ContactData = () => {
         }
     }, []);
 
-    function ChekInSelect() {
-
-        const option = [
-            {id: 0, value: "Ранний заезд"}, {id: 1, value: "12:00"}, {id: 2, value: "13:00"},
-            {id: 3, value: "14:00"}, {id: 4, value: "15:00"}, {id: 5, value: "16:00"},
-            {id: 6, value: "17:00"}, {id: 7, value: "18:00"}, {id: 8, value: "19:00"},
-            {id: 9, value: "20:00"}, {id: 10, value: "21:00"}, {id: 11, value: "22:00"},
-            {id: 12, value: "23:00"},
-        ]
-        const handleChange = (event) => {
-            dispatch(checkInHandler(event.target.value))
-        };
-
-        return (
-            <Box sx={{minWidth: 120}}>
-                <FormControl fullWidth required={true}>
-                    <Select
-                        id="checkIn__select"
-                        value={clientCheckIn}
-                        style={{height: "35px", border: "none", outline: "none"}}
-                        onChange={handleChange}
-                    >
-                        {option.map(item => (
-                            <MenuItem key={item.id} value={item.value}>{item.value}</MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-            </Box>
-        );
-    }
-
-    function ChekOutSelect() {
-        const option = [
-            {id: 0, value: "00:00"}, {id: 1, value: "01:00"}, {id: 2, value: "02:00"},
-            {id: 3, value: "03:00"}, {id: 4, value: "04:00"}, {id: 5, value: "05:00"},
-            {id: 6, value: "06:00"}, {id: 7, value: "07:00"}, {id: 8, value: "08:00"},
-            {id: 9, value: "09:00"}, {id: 10, value: "10:00"}, {id: 11, value: "11:00"},
-            {id: 12, value: "12:00"}, {id: 13, value: "Поздний отъезд"}
-        ]
-        const handleChange = (event) => {
-            dispatch(checkOutHandler(event.target.value))
-        };
-
-        return (
-            <Box sx={{minWidth: 120}}>
-                <FormControl fullWidth required={true}>
-                    <Select
-                        id="checkOut__select"
-                        value={clientCheckOut}
-                        style={{height: "35px", border: "none", outline: "none"}}
-                        onChange={handleChange}
-                    >
-                        {option.map(item => (
-                            <MenuItem key={item.id} value={item.value}>{item.value}</MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-            </Box>
-        );
-    }
 
     return (
         <div className="column__c__c" style={{marginLeft: "3%", marginRight: "3%"}}>
+
             <div className="row__sa__fs contact__block" style={{flexWrap: "wrap"}}>
+                <div className="column__c detail__booking " style={{marginTop: 30}}>
+                    <ListNumberCard
+                        key={number.id}
+                        name={number.name}
+                        id={number.id}
+                        hotelId={number.hotelId}
+                        number={number}
+                        categoryId={number.categoryId}
+                        guestCount={number.guestCount.length}
+                        area={number.area}
+                        priceBase={number.priceBase}
+                        bedroom={number.countBedrooms}
+                        hasWiFi={number.has_wifi.value}
+                        width={width}
+                        type={"booking"}
+                    />
+
+                </div>
+
                 <div className="column__fs" style={{margin: "15px"}}>
                     <div className="row__c__fs" style={{marginLeft: "10px"}}>
                         <h3>Ваши контактные данные</h3>
                     </div>
-                        <label>
-                            <span className="text__content__grey__12"><span style={{color: RED}}>*</span> Обязательное поле</span>
-                            <input
-                                type="text"
-                                required={true}
-                                placeholder="Ваше имя"
-                                className="inputCheckAvailability"
-                                value={clientData.name}
-                                onChange={nameOnChange}
-                            />
-                        </label>
-                        <label>
-                            <span className="text__content__grey__12"><span style={{color: RED}}>*</span> Обязательное поле</span>
-                            <InputMask
-                                value={clientData.phone}
-                                className="inputCheckAvailability "
-                                onChange={(e) => phoneOnChange(e)}
-                                mask="+7 (999) 999-99-99"
-                                placeholder="+7 (999) 999-99-99"
-                            />
-                        </label>
-                        <label>
-                            <span className="text__content__grey__12"><span style={{color: RED}}>*</span> Обязательное поле</span>
-                            <input
-                                type="email"
-                                required={true}
-                                placeholder="Ваше email"
-                                className="inputCheckAvailability"
-                                value={clientData.email}
-                                onChange={emailOnChange}
-                            />
-                            <span
-                                className="text__content__grey__12">На этот адрес отправим информацию о бронировании</span>
-                        </label>
+                    <div className="column">
+                                    <span className="text__content__grey__12 mt__mr">
+                                    <span style={{color: RED}}>*</span> Имя</span>
+                        <input
+                            type="text"
+                            required={true}
+                            placeholder="Ваше имя"
+                            className="inputEditUser"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                        />
+                        {error.name ? <p className="error">Неверно заполнено имя!</p> : ""}
 
-                    {checkPhone ?
-                        <span className="text__content__black__b__14"
-                              style={{
-                                  marginTop: "5px",
-                                  marginBottom: "5px",
-                                  color: RED
-                              }}>Некорректный номер телефона</span>
-                        :
-                        ""
-                    }
-                    {checkEmail ?
-                        <span className="text__content__black__b__14"
-                              style={{marginTop: "5px", marginBottom: "5px", color: RED}}>Некорректный email</span>
-                        :
-                        ""
-                    }
-                    {checkName ?
-                        <span className="text__content__black__b__14"
-                              style={{marginTop: "5px", marginBottom: "5px", color: RED}}>Вы не указали свое имя</span>
-                        :
-                        ""
-                    }
+                        <span className="text__content__grey__12 mt__mr"><span
+                            style={{color: RED}}>*</span> Фамилия</span>
+                        <input
+                            type="text"
+                            required={true}
+                            placeholder="Ваша фамилия"
+                            className="inputEditUser"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                        />
+                        {error.lastName ? <p className="error">Неверно заполнена фамилия!</p> : ""}
+
+                        <span className="text__content__grey__12 mt__mr"><span
+                            style={{color: RED}}>*</span> Номер телефона</span>
+                        <InputMask
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            type="tel"
+                            mask="+79999999999"
+                            placeholder="+79999999999"
+                            className={"inputEditUser"}
+                            disabled
+                        />
+                        {error.phone ? <p className="error">Неверно заполнен номер!</p> : ""}
+
+                        <span className="text__content__grey__12 mt__mr">
+                                        <span style={{color: RED}}>*</span> Email</span>
+                        <input
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            type="email"
+                            placeholder="Введите Email"
+                            className={"inputEditUser"}
+                            disabled
+                        />
+                        {error.email ? <p className="error">Неверный email!</p> : ""}
+                        <span className="text__content__grey__12 mt__mr ">
+                                <span style={{color: RED}}>*</span>Оплата
+                                    </span>
+                        <CustomSelect
+                            options={optionPayBooking}
+                            selectedOption={typePayment.name}
+                            setSelectedOption={(value) => value}
+                            chooseStatus={(value) => setTypePayment(value)}
+                            typeData={"status"}
+
+                        />
+                        {dataObjectBooking.political_cancel.some(item => item === 'withoutPrepayment') ?
+                            ""
+                            :
+                            <>
+                            <span
+                                className="text__content__grey__12 mt__mb__5"
+                                style={{marginBottom: 10, marginTop: 10}}>
+                                    <span style={{color: RED}}>*</span>
+                                        Предоплата
+                                    </span>
+                                <CustomSelect
+                                    options={optionPrepayment}
+                                    selectedOption={prepayment.name}
+                                    setSelectedOption={(value) => value}
+                                    chooseStatus={(value) => setPrepayment(value)}
+                                    typeData={"status"}
+                                />
+                            </>
+                        }
+
+                    </div>
                 </div>
                 <div className="column__fs" style={{margin: "15px"}}>
-                    <div className="row__c__fs" >
-                        <h3>{dataHotel.name}</h3>
+                    <div className="row__c__fs">
+                        <h3>Выберите дату</h3>
                     </div>
-
-                    {/*SLIDER*/}
-                    <SliderBig
-                        dataHotelNumber={dataHotel}
-                        height={"200px"}
-                        maxWidth={"100%"}
-                        borderRadius={"10px"}
-                        minWidth={"250px"}
-                        mb={"5px"}
-                        padding={"5px"}
-                    />
-                    <div className="row__sb__c" style={{marginBottom: "5px"}}>
-                    <span
-                        className="text__content__black__b__16">Итого за {cityOrHotel.dataRange.countNight} суток</span>
-                        <span
-                            className="text__content__black__b__20">{formatMoney(dataHotel.last_price_info.price_pn * cityOrHotel.dataRange.countNight)} ₽</span>
-                    </div>
-                </div>
-            </div>
-            <div className="column__c detail__booking">
-                <div className="row__c__fs" >
-                    <h3>Детали бронирования</h3>
-                </div>
-                <div className="row__sb__c" >
-                    <div className="column__fs__c">
-                    <span className="text__content__black__14"
+                    <div className="row__sb__c">
+                        <div className="column__fs__c">
+                    <span className="text__content__grey__12 mt__mr"
                           style={{marginBottom: "5px"}}>Даты заезда и отъезда</span>
-                        <div className="row__sb__c inputQuickBookingPeople">
-                            <div className="quick__booking__block">
-                                <div
-                                    className="row__sb__c quick__booking__block"
-                                    onClick={() => handlerDate()}
-                                    style={{ cursor: "pointer"}}>
+                            <div className="row__sb__c inputQuickBookingPeople">
+                                <div className="quick__booking__block">
+                                    <div
+                                        className="row__sb__c quick__booking__block"
+                                        onClick={() => handlerDate()}
+                                        style={{cursor: "pointer"}}>
                                 <span
                                     className="text__content__black__14"
                                     style={{marginLeft: "10px"}}>
-                                {cityOrHotel.dataRange.checkIn} - {cityOrHotel.dataRange.checkOut} {cityOrHotel.dataRange.month}
+                                {requestParameters.dataRange.checkIn} - {requestParameters.dataRange.checkOut} {requestParameters.dataRange.month}
                                     <span
                                         className="text__content__grey__14"
                                         style={{marginLeft: "5px"}}>
-                                {cityOrHotel.dataRange.countNight} {wordDeclensionNight(cityOrHotel.dataRange.countNight)}
+                                {requestParameters.dataRange.countNight} {wordDeclensionNight(requestParameters.dataRange.countNight)}
                             </span>
                         </span>
-                                    <span className={openDataRang ? 'iconDate' : "iconBtn"}>
+                                        <span className={openDataRang ? 'iconDate' : "iconBtn"}>
                         <Icon24ChevronDown color={GREY}/>
                     </span>
+                                    </div>
+                                    <DataRange
+                                        style={showCalendar ? "modal__list__search" : "modal__none"}
+                                        handle={(type, value) => dataSearchHandler(type, value)}
+                                        page={"search"}
+                                    />
                                 </div>
-                                <DataRange
-                                    style={showCalendar ? "modal__list__search" : "modal__none"}
-                                    handle={() => handlerDate()}
-                                    page={"search"}
-                                />
                             </div>
-                        </div>
-                        <span className="text__content__black__14"
-                              style={{marginBottom: "5px"}}>Количество гостей</span>
-                        <div className="row__c__fs inputQuickBookingPeople">
-                            <div className="quick__booking__block">
-                                <div
-                                    className="row__sb__c quick__booking__block"
-                                    onClick={() => handlerOpenGuest()}
-                                    style={{ cursor: "pointer"}}>
+                            <span className="text__content__grey__12 mt__mr"
+                                  style={{marginBottom: "5px"}}>Количество гостей</span>
+                            <div className="row__c__fs inputQuickBookingPeople">
+                                <div className="quick__booking__block">
+                                    <div
+                                        className="row__sb__c quick__booking__block"
+                                        onClick={() => handlerOpenGuest()}
+                                        style={{cursor: "pointer"}}>
                         <span className="text__content__black__14" style={{marginLeft: "10px"}}>
-                            {cityOrHotel.guest.adult + cityOrHotel.guest.child.length} {wordDeclension(cityOrHotel.guest.adult + cityOrHotel.guest.child.length)}
+                            {requestParameters.guest.adult + requestParameters.guest.child.length} {wordDeclension(requestParameters.guest.adult + requestParameters.guest.child.length)}
                         </span>
-                                    <span className={openGuest ? 'iconDate' : "iconBtn"}>
+                                        <span className={openGuest ? 'iconDate' : "iconBtn"}>
                             <Icon24ChevronDown color={GREY}/>
                         </span>
+                                    </div>
+                                    <GuestHotel
+                                        style={showGuest ? "modal__guest" : "modal__none"}
+                                        guest={requestParameters.guest.adult}
+                                        child={requestParameters.guest.child}
+                                        handler={() => checkingHandler()}
+                                        checkOld={checkOld}
+                                    />
                                 </div>
-                                <GuestHotel
-                                    style={showGuest ? "modal__guest" : "modal__none"}
-                                    guest={cityOrHotel.guest.adult}
-                                    child={cityOrHotel.guest.child}
-                                    handler={() => checkingHandler()}
-                                    checkOld={checkOld}
-                                />
+                            </div>
+                            <span className="text__content__grey__12 mt__mb__5"
+                                  style={{marginBottom: 10, marginTop: 10}}><span style={{color: RED}}>
+                                            *</span> Время заезда и отъезда</span>
+                            <div className="row__sb__c mb">
+                                <span className="text__content__black__b__16 CheckInCheckOut">
+                                    {dataObjectBooking.checkIn}
+                                </span>
+                                <span className="text__content__black__b__16 CheckInCheckOut">
+                                    {dataObjectBooking.checkOut}
+                                </span>
+                            </div>
+
+
+                            <div className="row__sb__c" style={{marginBottom: "5px", marginTop: "15px"}}>
+                                 <span className="text__content__black__b__16">
+                                     Итого за {requestParameters.dataRange.countNight} суток
+                                 </span>
+                                <span className="text__content__black__b__20">
+                                        {formatMoney(number.priceBase * requestParameters.dataRange.countNight)} ₽
+                                </span>
+                            </div>
+                            {
+                                 name === "" || lastName === "" || typePayment.value === "no choose" || dateError === true?
+                                    <div style={{marginBottom: "25px", marginTop: "15px"}}>
+                                        <ButtonIcon
+                                            handler={() => msgSave("Не все поля заполнены!")}
+                                            icon={<Icon24BriefcaseOutline color={WHITE}/>}
+                                            style={"doneBtnNoActive"}
+                                            name={"Забронировать"}
+                                            styleText={"text__content__white__16"}
+                                            width={width >= 0 && width <= 530 ? "280px" : "300px"}
+                                        />
+                                    </div>
+                                    :
+                                    <div style={{marginBottom: "25px", marginTop: "15px"}}>
+                                        <ButtonIcon
+                                            handler={() => bookingHandler()}
+                                            icon={<Icon24BriefcaseOutline color={WHITE}/>}
+                                            style={"doneBtn"}
+                                            name={"Забронировать"}
+                                            styleText={"text__content__white__16"}
+                                            width={width >= 0 && width <= 530 ? "280px" : "300px"}
+                                            link={"/pay"}
+                                        />
+                                    </div>
+                            }
+
+                            <div className="row__c__c ">
+                                {isMsg ? <span className="text__content__black__12">{msg}</span> : ""}
+                                {dateError === false ? "" :
+                                    <span className="text__content__white__14"
+                                          style={{color: RED}}>Дата бронирования уже занята!</span>}
+                                {successData === "" ? "" :
+                                    <span className="text__content__white__14"
+                                          style={{color: GREEN}}>{successData}</span>}
                             </div>
                         </div>
-                        <span className="text__content__black__14"
-                              style={{marginBottom: "5px"}}>Время заезда и отъезда</span>
-                        <div className="row__sb__c">
-                            <ChekInSelect/>
-                            <ChekOutSelect/>
-                        </div>
-                        {checkCheckIn ?
-                            <span className="text__content__black__b__14"
-                                  style={{
-                                      marginTop: "5px",
-                                      marginBottom: "5px",
-                                      color: RED
-                                  }}>Вы не указали дату заезда</span>
-                            :
-                            ""
-                        }
-                        {checkCheckOut ?
-                            <span className="text__content__black__b__14"
-                                  style={{
-                                      marginTop: "5px",
-                                      marginBottom: "5px",
-                                      color: RED
-                                  }}>Вы не указали дату отъезда</span>
-                            :
-                            ""
-                        }
-                        <div style={{marginBottom: "25px", marginTop: "25px"}}>
-                            <ButtonIcon
-                                handler={() => bookingHandler()}
-                                icon={<Icon24BriefcaseOutline color={WHITE}/>}
-                                style={"doneBtn"}
-                                name={"Забронировать"}
-                                styleText={"text__content__white__16"}
-                                width={width >= 0 && width <= 530 ? "280px" : "300px"}
-                                link={"/Бронирование"}
-                            />
-                        </div>
                     </div>
-                    {/*<div className="column__fs__c">*/}
 
-                    {/*</div>*/}
                 </div>
             </div>
+
         </div>
     )
 }

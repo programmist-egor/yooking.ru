@@ -10,7 +10,19 @@
     padding: 20px;
     margin-left: 10px;
     margin-right: 10px;
-    width: 320px;
+    width: 300px;
+}
+.loginResetEmail {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    background: var(--white);
+    border-radius: var(--border-radius-20);
+
+    padding: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+    width: 300px;
 }
 .login__input {
     width: 100%;

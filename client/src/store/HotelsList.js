@@ -3,11 +3,25 @@ import {createSlice} from "@reduxjs/toolkit";
 const hotels_list = createSlice({
     name: 'hotels_list',
     initialState: {
+        hotelId: null,
+        searchParameters: {},
         metroShow: false,
         dataHotelsList: [],
+        objectList: [],
+        dataNumbersList: [],
+        dataCategoryBooking: null,
+        dataObjectBooking: null,
+        dataNumber: null,
+        dataNumberBooking: null,
+        categoryId: null,
         filteredHotels: null,
         copyDataHotelsList: [],
         loadingHotelList: false,
+        loadNumberListModal: false,
+        loadMoreNumberModal: false,
+        loadingNumberList: false,
+        openNumberList: false,
+        openMoreNumber: false,
         loadingPageCityHotel: false,
         loadingList: {res: false, time: 6000},
         resultLoadData: true,
@@ -18,6 +32,48 @@ const hotels_list = createSlice({
         loadingMap: false
     },
     reducers: {
+        setHotelIdHandler(state, action) {
+            state.hotelId = action.payload
+        },
+        setCategoryHandler(state, action) {
+            state.dataCategoryBooking = action.payload
+        },
+        setDataObjectBooking(state, action) {
+            state.dataObjectBooking = action.payload
+        },
+        setNumberBookingHandler(state, action) {
+            state.dataNumberBooking = action.payload
+        },
+        setNumberHandler(state, action) {
+            state.dataNumber = action.payload
+        },
+        setCategoryIdHandler(state, action) {
+            state.categoryId = action.payload
+        },
+        loadMoreNumberModalHandler(state, action) {
+            state.loadMoreNumberModal = action.payload
+        },
+        loadNumberListModalHandler(state, action) {
+            state.loadingNumberList = action.payload
+        },
+        openMoreNumberHandler(state, action) {
+            state.openMoreNumber = action.payload
+        },
+        loadingNumberListHandler(state, action) {
+            state.loadingNumberList = action.payload
+        },
+        openNumberListHandler(state, action) {
+            state.openNumberList = action.payload
+        },
+        searchParametersHandler(state, action) {
+            state.searchParameters = action.payload
+        },
+        objectListHandler(state, action) {
+            state.objectList = action.payload
+        },
+        dataNumbersListHandler(state, action) {
+            state.dataNumbersList = action.payload
+        },
         showMetroHandler(state, action) {
             state.metroShow = state.metroShow = action.payload
         },
@@ -84,6 +140,20 @@ const hotels_list = createSlice({
 });
 
 export const {
+    setHotelIdHandler,
+    openMoreNumberHandler,
+    setNumberHandler,
+    setDataObjectBooking,
+    setNumberBookingHandler,
+    setCategoryHandler,
+    loadMoreNumberModalHandler,
+    setCategoryIdHandler,
+    loadNumberListModalHandler,
+    loadingNumberListHandler,
+    openNumberListHandler,
+    searchParametersHandler,
+    dataNumbersListHandler,
+    objectListHandler,
     showMetroHandler,
     loadingPageCityHotelHandler,
     loadingHotelListHandler,

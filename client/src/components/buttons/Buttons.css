@@ -252,7 +252,6 @@
 }
 .bookBookingBtn {
     display: flex;
-    margin: 10px;
     width: 140px;
     flex-direction: row;
     justify-content: center;
@@ -262,6 +261,45 @@
     height: 25px;
 
     border-radius: var(--border-radius-5);
+}
+.cancelBookingBtn {
+    display: flex;
+    width: 140px;
+    margin-right: 10px;
+    margin-left: 10px;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background: var(--grey);
+    cursor: pointer;
+    height: 30px;
+    border-radius: var(--border-radius-5);
+}
+.cancelEditUserBtn {
+    display: flex;
+    width: 200px;
+    margin-right: 10px;
+    margin-left: 10px;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background: var(--grey);
+    cursor: pointer;
+    height: 30px;
+    border-radius: var(--border-radius-5);
+}
+.changePasswordButton {
+    padding: 6px;
+    background: var(--grey-black);
+    cursor: pointer;
+    border-radius: var(--border-radius-5);
+    border: none;
+    outline: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 280px;
 }
 .block__scroll {
     display: flex;

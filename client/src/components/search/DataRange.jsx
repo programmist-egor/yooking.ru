@@ -1,4 +1,4 @@
-// import Calendar from "../сalendar/Calendar";
+// import Calendar from "../calendar/Calendar";
 // import {useState} from "react";
 // import {useDispatch, useSelector} from "react-redux";
 // import {checkInHandler, checkOutHandler, handlerDataRange, showCalendarHandler} from "../../store/Search";

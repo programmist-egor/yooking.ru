@@ -6,35 +6,109 @@ import {SliderMini} from "../slider/SliderMini";
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {
+    dataNumbersListHandler,
     loadingHotelListHandler,
-    loadingMapHandler, setFilteredHotels,
+    loadingMapHandler, loadNumberListModalHandler, setFilteredHotels, setHotelIdHandler,
     showHotelMapHandler,
     showPlaceMarkHandler
 } from "../../store/HotelsList";
 import {dataHotelHandler} from "../../store/HotelItem";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {resetParamHandler} from "../../store/Filter";
+import {formatMoney} from "../../utils/formating-money";
+import PhotoObjectService from "../../services/photo-object.service";
+import CategoryService from "../../services/category.service";
+import {parseJSONPropertiesInArray} from "../../utils/json-parse-object";
+import RatingService from "../../services/rating.service";
+import NumberService from "../../services/number.service";
 
 export const HotelCard = (
     {
         toggleDrawerMap,
         name,
-        photoHotel,
         nearMetro,
-        rating,
-        countReviews,
-        lastPriceInfo,
         address,
         distance,
         hotelId,
-        favorite,
         location,
         item,
         hotelCity,
-        itemPage
     }) => {
     const dispatch = useDispatch()
     const showMetro = useSelector(state => state.hotels_list.metroShow)
+    const dataNumbersList = useSelector(state => state.hotels_list.dataNumbersList)
+    const [objectPhotos, setObjectPhotos] = useState([]);
+    const [averagePrice, setAveragePrice] = useState("");
+    const [rating, setRating] = useState(0)
+    const [ratingObject, setRatingObject] = useState(null);
+    const [ratingCount, setRatingCount] = useState([]);
+    const requestParameters = useSelector(state => state.hotels_item.cityOrHotel)
+
+    const roundToOneDecimal = (num) => Math.round(num * 10) / 10;
+
+    const calculateTotalRating = (ratings) => {
+        const totalRating = Object.values(ratings).reduce((acc, curr) => acc + curr, 0);
+        const averageRating = totalRating / Object.keys(ratings).length;
+        return roundToOneDecimal(averageRating);
+    };
+
+    useEffect(() => {
+        if (!ratingObject) {
+            RatingService.getAllRatingObject(hotelId)
+                .then(data => {
+                    if(data.data.length !== 0) {
+                        setRatingCount(data.data)
+                        const ratings = data.data.reduce((acc, item, index, array) => {
+                            acc.cleanliness = (acc.cleanliness || 0) + item.cleanliness / array.length;
+                            acc.mood = (acc.mood || 0) + item.mood / array.length;
+                            acc.timelyCheckIn = (acc.timelyCheckIn || 0) + item.timelyCheckIn / array.length;
+                            acc.priceQuality = (acc.priceQuality || 0) + item.priceQuality / array.length;
+                            acc.photoMatch = (acc.photoMatch || 0) + item.photoMatch / array.length;
+                            acc.qualityService = (acc.qualityService || 0) + item.qualityService / array.length;
+                            return acc;
+                        }, {});
+
+                        Object.keys(ratings).forEach(key => {
+                            ratings[key] = roundToOneDecimal(ratings[key]);
+                        });
+
+                        // Вызов функции для расчета общего рейтинга и сохранение результата в локальную переменную rating
+                        const totalRating = calculateTotalRating(ratings);
+                        setRating(totalRating);
+                        setRatingObject(ratings);
+                    } else {
+                        const ratings = {
+                            cleanliness: 0,
+                            mood: 0,
+                            timelyCheckIn: 0,
+                            priceQuality: 0,
+                            photoMatch: 0,
+                            qualityService: 0
+                        }
+                        setRating(0);
+                        setRatingObject(ratings);
+                    }
+
+                })
+                .catch(error => console.log(error));
+        }
+        if (objectPhotos.length === 0) {
+            PhotoObjectService.getAllPhotosObject("hotels_map", hotelId)
+                .then(data => setObjectPhotos(data))
+        }
+
+        // Фильтрация номеров по hotelId
+        const filteredPrices = dataNumbersList.filter(price => price.hotelId === hotelId);
+        // Поиск средней цены
+        if (filteredPrices.length > 0) {
+            const minPrice = Math.min(...filteredPrices.map(price => price.priceBase));
+            const filteredMinPrice = minPrice > 0 ? minPrice : 0;
+            setAveragePrice(filteredMinPrice);
+        } else {
+            console.log("Нет данных для указанного hotelId");
+        }
+    }, [])
+
 
     const showHotelOnMap = () => {
         toggleDrawerMap()
@@ -43,7 +117,9 @@ export const HotelCard = (
         setTimeout(() => {
             dispatch(loadingMapHandler(false))
         }, 1000)
-        dispatch(showHotelMapHandler({lat: location.lat, lon: location.lon, zoom: 16}))
+        console.log("// Обновление местоположения", location);
+        const localDataLocation = {lat: location.lat, lon: location.lon, zoom: 16}
+        localStorage.setItem('location', JSON.stringify(localDataLocation));
     }
 
     const showHotelOnMapDesktop = () => {
@@ -52,44 +128,42 @@ export const HotelCard = (
         setTimeout(() => {
             dispatch(loadingMapHandler(false))
         }, 1000)
-        dispatch(showHotelMapHandler({lat: location.lat, lon: location.lon, zoom: 16}))
+        console.log("// Обновление местоположения", location);
+        const localDataLocation = {lat: location.lat, lon: location.lon, zoom: 16}
+        localStorage.setItem('location', JSON.stringify(localDataLocation));
     }
 
-    // Функция для форматирования числа в денежный формат
-    function formatMoney(number) {
-        // Преобразуем число в строку
-        let str = number.toString();
-        // Проверяем, есть ли десятичная точка или запятая
-        let dotIndex = str.indexOf(".");
-        let commaIndex = str.indexOf(",");
-        // Если есть точка, то разделяем строку на целую и дробную части
-        if (dotIndex > -1) {
-            let integerPart = str.slice(0, dotIndex);
-            let decimalPart = str.slice(dotIndex + 1);
-            // Добавляем пробелы между тысячами в целой части
-            integerPart = integerPart.replace(/\d{1,3}(?=(\d{3})+(?!\d))/g, "$& ");
-            // Возвращаем отформатированную строку
-            return integerPart + "," + decimalPart;
-        }
-        // Если есть запятая, то разделяем строку на целую и дробную части
-        else if (commaIndex > -1) {
-            let integerPart = str.slice(0, commaIndex);
-            let decimalPart = str.slice(commaIndex + 1);
-            // Добавляем пробелы между тысячами в целой части
-            integerPart = integerPart.replace(/\d{1,3}(?=(\d{3})+(?!\d))/g, "$& ");
-            // Возвращаем отформатированную строку
-            return integerPart + "." + decimalPart;
-        }
-        // Если нет точки и запятой, то просто добавляем пробелы между тысячами
-        else {
-            return str.replace(/\d{1,3}(?=(\d{3})+(?!\d))/g, "$& ");
-        }
+    const filterNumbers = async (array) => {
+        const checkIn = requestParameters.checkIn
+        const checkOut = requestParameters.checkOut
+        const guest = requestParameters.guest.adult + requestParameters.guest.child.length
+        const filteredNumbers = await array.filter(number => {
+            // Проверяем диапазон дат в bookingList
+            const isDateAvailable = number.bookingList.every(booking => {
+                return !(checkIn >= booking.checkIn && checkIn < booking.checkOut) &&
+                    !(checkOut > booking.checkIn && checkOut <= booking.checkOut);
+            });
+            // Проверяем количество гостей
+            const isGuestCountValid = number.guestCount.length >= guest;
+            return isDateAvailable && isGuestCountValid;
+        });
+        return filteredNumbers
     }
 
     const chooseHotelMore = () => {
-        dispatch(setFilteredHotels(null));
-        dispatch(resetParamHandler())
-        dispatch(dataHotelHandler(item))
+        localStorage.setItem("hotelId", hotelId)
+        NumberService.getAllNumbers("hotels_map", hotelId)
+            .then(data => {
+                const resultNumb = parseJSONPropertiesInArray(data)
+                filterNumbers(resultNumb)
+                    .then(data => {
+                        dispatch(dataNumbersListHandler(data))
+                    })
+                    .catch(e => console.log(e))
+                    .finally(() => {
+                        dispatch(loadNumberListModalHandler(false))
+                    })
+            })
     }
 
 
@@ -109,8 +183,7 @@ export const HotelCard = (
                 <SliderMini
                     item={item}
                     hotelId={hotelId}
-                    photoHotel={photoHotel}
-                    favorite={favorite}
+                    photoHotel={objectPhotos}
                     width={"360px"}
                     minWidth={"300px"}
                     height={"260px"}
@@ -139,7 +212,7 @@ export const HotelCard = (
                         <span className="text__content__black__b__16 "
                               style={{overflowWrap: "break-word", width: "100%", marginBottom: "5px"}}>{name}</span>
                             <span className="text__content__black__12 marginsCards"
-                                  style={{marginLeft: 0}}>{address.ru === undefined ? "" : address.ru || address.en}
+                                  style={{marginLeft: 0}}>{address}
                         </span>
                             <span className="text__content__black__12 marginsCards"
                                   style={{marginLeft: 0}}>
@@ -173,15 +246,15 @@ export const HotelCard = (
                         <div className="column__c">
                             <Rating
                                 rating={rating}
-                                countReviews={countReviews.length}
+                                countReviews={ratingCount.length}
                             />
                             <div className="row__c__c price__card">
                             <span
-                                className="text__content__white__b__15">{lastPriceInfo === 0 ? "0" : formatMoney(lastPriceInfo.price)} ₽</span>
+                                className="text__content__white__b__15">от {formatMoney(averagePrice)} ₽</span>
                             </div>
                         </div>
                     </div>
-                    <Link to={"/Отель"}>
+                    <Link to={"/hotel"}>
                         <Button
                             name={"Выбрать свободный номер"}
                             marginLeft={"0"}
@@ -207,8 +280,7 @@ export const HotelCard = (
                 {/*SLIDER*/}
                 <SliderMini
                     hotelId={hotelId}
-                    photoHotel={photoHotel}
-                    favorite={favorite}
+                    photoHotel={objectPhotos}
                     width={"360px"}
                     minWidth={"300px"}
                     height={"260px"}
@@ -235,7 +307,7 @@ export const HotelCard = (
                         <span className="text__content__black__b__16 "
                               style={{overflowWrap: "break-word", width: "100%", marginBottom: "5px"}}>{name}</span>
                             <span className="text__content__black__12 marginsCards"
-                                  style={{marginLeft: 0}}>{address.ru === undefined ? "" : address.ru || address.en}
+                                  style={{marginLeft: 0}}>{address}
                                 </span>
                             <span className="text__content__black__12 marginsCards"
                                   style={{marginLeft: 0}}>
@@ -269,15 +341,15 @@ export const HotelCard = (
                         <div className="column__c">
                             <Rating
                                 rating={rating}
-                                countReviews={countReviews.length}
+                                countReviews={ratingCount.length}
                             />
                             <div className="row__c__c price__card">
                             <span
-                                className="text__content__white__b__15">{lastPriceInfo === 0 ? "0" : formatMoney(lastPriceInfo.price)} ₽</span>
+                                className="text__content__white__b__15">от {formatMoney(averagePrice)} ₽</span>
                             </div>
                         </div>
                     </div>
-                    <Link to={"/Отель"}>
+                    <Link to={"/hotel"}>
                         <Button
                             name={"Выбрать свободный номер"}
                             marginLeft={"0"}
@@ -304,8 +376,7 @@ export const HotelCard = (
                 {/*SLIDER*/}
                 <SliderMini
                     hotelId={hotelId}
-                    photoHotel={photoHotel}
-                    favorite={favorite}
+                    photoHotel={objectPhotos}
                     width={"360px"}
                     minWidth={"300px"}
                     height={"240px"}
@@ -334,7 +405,7 @@ export const HotelCard = (
                         <span className="text__content__black__b__16 "
                               style={{overflowWrap: "break-word", width: "100%", marginBottom: "5px"}}>{name}</span>
                             <span className="text__content__black__12 marginsCards"
-                                  style={{marginLeft: 0}}>{address.ru === undefined ? "" : address.ru || address.en}
+                                  style={{marginLeft: 0}}>{address}
                         </span>
                             <span className="text__content__black__12 marginsCards"
                                   style={{marginLeft: 0}}>
@@ -368,15 +439,15 @@ export const HotelCard = (
                         <div className="column__c">
                             <Rating
                                 rating={rating}
-                                countReviews={countReviews.length}
+                                countReviews={ratingCount.length}
                             />
                             <div className="row__c__c price__card">
                             <span
-                                className="text__content__white__b__15">{lastPriceInfo === 0 ? "0" : formatMoney(lastPriceInfo.price)} ₽</span>
+                                className="text__content__white__b__15">от {formatMoney(averagePrice)} ₽</span>
                             </div>
                         </div>
                     </div>
-                    <Link to={"/Отель"}>
+                    <Link to={"/hotel"}>
                         <Button
                             name={"Выбрать свободный номер"}
                             marginLeft={"0"}
@@ -425,8 +496,7 @@ export const HotelCard = (
                 {/*SLIDER*/}
                 <SliderMini
                     hotelId={hotelId}
-                    photoHotel={photoHotel}
-                    favorite={favorite}
+                    photoHotel={objectPhotos}
                     width={"100%"}
                     height={"240px"}
                     borderRadius={"10px 10px 10px 10px"}
@@ -438,7 +508,7 @@ export const HotelCard = (
                           className="text__content__grey__12 marginsCards"
                           style={{marginLeft: 0, fontWeight: "bold"}}
                       >
-                        {address.ru === undefined ? "" : address.ru || address.en}
+                        {address}
                       </span>
                     </div>
                     <div className="column">
@@ -465,7 +535,7 @@ export const HotelCard = (
                 <div className="row__sb__c" style={{marginBottom: "20px", marginTop: "10px"}}>
                     <div className="row__c__c price__card">
       <span className="text__content__white__b__15">
-        {lastPriceInfo === 0 ? "0" : formatMoney(lastPriceInfo.price)} ₽
+        {formatMoney(4000)} ₽
       </span>
                     </div>
                     <span
@@ -476,7 +546,7 @@ export const HotelCard = (
       Показать на карте
     </span>
                 </div>
-                <Link to={"/Отель"}>
+                <Link to={"/hotel"}>
                     <Button
                         name={"Выбрать свободный номер"}
                         marginLeft={"0"}

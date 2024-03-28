@@ -1,89 +1,72 @@
 import "./SearchPanel.css"
 import React, {useEffect, useState} from "react";
 import {Icon24ChevronDown, Icon24LocationMapOutline} from '@vkontakte/icons';
-import {GREY, RED, WHITE} from "../../theme/colors";
+import {GREY, WHITE} from "../../theme/colors";
 import line from "../../img/line.png"
 import {ButtonIcon} from "../buttons/ButtonIcon";
 import {ListSearch} from "./ListSearch";
 import {useDispatch, useSelector} from "react-redux";
-import {wordDeclension, wordDeclensionNight} from "../utils/word-declensions";
-import {getRandomInRange, pageDistribution} from "../utils/search-hotels";
+import {wordDeclension, wordDeclensionNight} from "../../utils/word-declensions";
 import {
     showListSearchHandler,
-    cityOrHotelHandler,
     showCalendarHandler,
     showGuestHandler,
-    cityOrHotelInput
+    initDateRangeHandler, cityOrHotelInput, cityOrHotelHandler, handlerDataRange
 } from "../../store/Search";
-import {DataRange} from "../сalendar/DataRange";
+import {DataRange} from "../calendar/DataRange";
 import {GuestHotel} from "./GuestHotel";
-import Service from "../service";
+
 import {
-    copyDataHotelsListHandler,
-    countPageHandler,
-    dataHotelsListHandler, loadingHotelListHandler,
-    loadingListHandler, loadingMapHandler, pageSwitchingHandler,
-    resultLoadDataHandler,
-    showHotelMapHandler
+    copyDataHotelsListHandler, dataNumbersListHandler,
+    loadingHotelListHandler,
+    loadingMapHandler, objectListHandler, pageSwitchingHandler, searchParametersHandler, setFilteredHotels,
+
 } from "../../store/HotelsList";
 
-import {countHandler, countOtherSortHandler} from "../../store/Filter";
-import prewiew from "../../img/preview.png";
-import {handlerCountHotels} from "../../store/Main";
+import {parseJSONPropertiesInArray} from "../../utils/json-parse-object";
+import ObjectService from "../../services/object.service";
+import {countOtherSortHandler} from "../../store/Filter";
 
 
 const SearchPanel = () => {
-
-    const dataCityHotel = new Service()
-
     const dispatch = useDispatch()
-    const loadingHotelList = useSelector(state => state.hotels_list.loadingHotelList)
+    const requestParameters = useSelector(state => state.search.cityOrHotel)
+    const [objectList, setObjectList] = useState([])
+    const [filterData, setFilterData] = useState([])
+    const [searchCity, setSearchCity] = useState(requestParameters.city.city || "")
+
     const [checkOld, setCheckOld] = useState(false)
     const [openDataRang, setOpenDataRang] = useState(false)
     const [openGuest, setGuest] = useState(false)
-    const [link, setLink] = useState("/")
-    const [data, setData] = useState({results: {locations: [{id: 1}], hotels: [{id: 1}]}})
+    const [link, setLink] = useState("/hotels_map")
     const showListSearch = useSelector(state => state.search.showListSearch)
     const showCalendar = useSelector(state => state.search.showCalendar)
     const showGuest = useSelector(state => state.search.showGuest)
-    const cityOrHotel = useSelector(state => state.search.cityOrHotel)
-    const checkIn = useSelector(state => state.search.checkIn)
-    const checkOut = useSelector(state => state.search.checkOut)
-    const rangeValueStart = useSelector(state => state.filter.rangeValueStart)
-    const rangeValueEnd = useSelector(state => state.filter.rangeValueEnd)
-    const dataHotelsList = useSelector(state => state.hotels_list.dataHotelsList)
-    const copyDataHotelsList = useSelector(state => state.hotels_list.copyDataHotelsList)
     const [isWriteCity, setIsWriteCity] = useState(false)
-    const resultLoadData = useSelector(state => state.hotels_list.resultLoadData)
-    // const modal = document.getElementById('modal__search');
-    // const input = document.getElementById('search__input');
 
-    const handlerText = (e) => {
-        if (e.target.value !== "") {
-                dispatch(showListSearchHandler(true))
-                dataCityHotel.getCityAndHotels(e.target.value, "&limit=100", "&lookFor=city", "&lang=ru").then((result) => {
-                    setData(result)
-                })
-                dispatch(cityOrHotelInput(e.target.value))
+    //Загрузка объектов
+    const getObjectList = () => {
+        ObjectService.getAllObject()
+            .then(data => {
+                const parsedData = parseJSONPropertiesInArray(data);
+                setObjectList(parsedData);
 
-        } else {
-            dispatch(cityOrHotelInput(""))
-            dispatch(showListSearchHandler(false))
+            })
+            .catch(error => {
+                console.log(error);
+            })
+
+    }
+    useEffect(() => {
+        if (objectList.length === 0) {
+            getObjectList()
         }
-    }
+    }, []);
 
 
-    //Выбор города или отеля из поиска
-    const chooseCityOrHotel = (value, cityAndHotel) => {
-        dispatch(showListSearchHandler(false))
-        setLink("/Отели_на_карте");
-        dispatch(cityOrHotelHandler({value: value, cityAndHotel: cityAndHotel}))
-    }
-
-
-    const handleClickOutsideListSearch = () => {
+    const handleClickOutsideListSearch = (city) => {
         dispatch(showListSearchHandler(false));
-        dispatch(cityOrHotelInput(""));
+        setSearchCity(city)
     };
     const handleClickOutsideGuestHotel = () => {
         setGuest(false);
@@ -105,7 +88,7 @@ const SearchPanel = () => {
     }
 
     const checkingHandler = () => {
-        if (cityOrHotel.guest.child.map(child => child.old === "Возраст")[0]) {
+        if (requestParameters.guest.child.map(child => child.old === "Возраст")[0]) {
             setCheckOld(true)
         } else {
             setGuest(!openGuest)
@@ -114,15 +97,57 @@ const SearchPanel = () => {
         }
     }
 
+    const dataSearchHandler = (type, value) => {
+        if (type === "city") {
+            dispatch(cityOrHotelHandler(value))
+            handleClickOutsideListSearch(value.city)
+        }
+        if (type === "DataRange") {
+            dispatch(handlerDataRange(value))
+            handlerDate()
+        }
+    }
+
+
+
+    const handlerText = (e) => {
+        if (e.target.value !== "") {
+            dispatch(showListSearchHandler(true));
+            const searchText = e.target.value.toLocaleLowerCase();
+            setSearchCity(e.target.value);
+            if (searchText.length !== 0) {
+                // Фильтруем userData по имени, фамилии, телефону или email
+                const filteredCity = objectList.filter(item => {
+                    const cityMatch = item.city && item.city.toLocaleLowerCase().includes(searchText);
+                    return cityMatch;
+                });
+                // Создаем множество уникальных городов
+                const uniqueCities = new Set(filteredCity.map(item => item.city));
+                // Фильтруем уникальные города и сохраняем целые объекты
+                const uniqueCitiesArray = Array.from(uniqueCities).map(city => {
+                    return filteredCity.find(item => item.city === city);
+                });
+                setFilterData(uniqueCitiesArray);
+            } else {
+                // Если строка поиска пустая, возвращаем пустой массив
+                setFilterData([]);
+                dispatch(showListSearchHandler(false));
+            }
+        } else {
+            setSearchCity("");
+            dispatch(showListSearchHandler(false));
+        }
+    }
+
+
     const updateHotelList = () => {
         dispatch(pageSwitchingHandler(0))
-
-        dispatch(showHotelMapHandler(
-            {
-                lat: cityOrHotel.hotelAndCity.city.location.lat,
-                lon: cityOrHotel.hotelAndCity.city.location.lon,
-                zoom: 13
-            }))
+        const localDataLocation = {lat: requestParameters.city.location.lat, lon: requestParameters.city.location.lon, zoom: 13}
+        localStorage.setItem('location', JSON.stringify(localDataLocation));
+        dispatch(loadingMapHandler(true))
+        setTimeout(() => {
+            dispatch(loadingMapHandler(false))
+        }, 3000)
         dispatch(showCalendarHandler(false))
         dispatch(showGuestHandler(false));
     }
@@ -131,142 +156,70 @@ const SearchPanel = () => {
         // добавьте здесь код для отображения индикатора загрузки
         dispatch(loadingHotelListHandler(true))
         dispatch(loadingMapHandler(true))
-        console.log('Показать индикатор загрузки');
+
     };
 
     const hideLoadingIndicator = () => {
         // добавьте здесь код для скрытия индикатора загрузки
         dispatch(loadingHotelListHandler(false))
         dispatch(loadingMapHandler(false))
-        console.log('Скрыть индикатор загрузки');
+
     };
 
-
-    const formatHotel = (hotel, hotelDetails) => {
-        return {
-            hotelId: hotel.hotel_id,
-            name: hotel.name,
-            has_wifi: hotel.has_wifi,
-            property_type: hotel.property_type,
-            stars: hotel.stars,
-            last_price_info: hotel.last_price_info || 0,
-            distance: hotel.distance,
-            metro: [],
-            rating: getRandomInRange(6, 10),
-            countReviews: [{
-                id: 1,
-                reviewPlus: "",
-                reviewMinus: "",
-                rating: getRandomInRange(6, 10),
-                infoHotel: {},
-                person: {id: 1, name: ""}
-            }],
-            favorite: false,
-            political_cancel: ["withoutPrepayment", "paymentInAdvance", "freeCancellation"],
-            nutrition: ["breakfastIncluded", "breakfastAndDinnerIncluded", "withOwnKitchen"],
-            countFreeNumberHotel: 0,
-            idObject: getRandomInRange(0, 100000),
-            freeNumbersHotel: [{
-                id: 1,
-                header: "Двухместный номер с 1 кроватью",
-                price: "39 800 ₽",
-                date: "За 13 суток",
-                img: prewiew,
-                text: "2 гостя 1 кровать 1 спальня",
-                content: "1 двуспальная кровать"
-            }],
-            minimumNightStay: 1,
-            shortFacilities: [
-                "noSmoking",
-                "transferAirport",
-                "parking",
-                "reseption",
-                "familyNumber",
-                "foodDelivery",
-                "pets",
-                "restaurant",
-                "pool",
-                "fitness",
-                "spa",
-                "wiFiInRoom"
-    ],
-            countBedrooms: getRandomInRange(1, 4),
-            checkIn: hotelDetails.checkIn,
-            checkOut: hotelDetails.checkOut,
-            location: hotelDetails.location,
-            photos: hotelDetails.photos,
-            photoCount: hotelDetails.photoCount,
-            address: hotelDetails.address,
-            cityId: hotelDetails.cityId,
-        };
-    };
-
-    const getHotelListFromResults = (locationResult, hotelsAtCityResult) => {
-        return locationResult.popularity.map((hotel) => {
-            const hotelDetails = hotelsAtCityResult.hotels.find((hotelDetails) => hotelDetails.id === hotel.hotel_id);
-            return formatHotel(hotel, hotelDetails);
-        });
-    };
-
-    const createListHotels = () => {
-        return new Promise((resolve, reject) => {
-            dataCityHotel
-                .getLocationDump(
-                    cityOrHotel.hotelAndCity.city.id,
-                    300,
-                    'popularity',
-                    checkIn,
-                    checkOut,
-                    'ru'
-                )
-                .then((locationResult) => {
-                    return dataCityHotel.getHotelsAtCity(cityOrHotel.hotelAndCity.city.id)
-                        .then((hotelsAtCityResult) => {
-                            resolve({locationResult, hotelsAtCityResult});
-                        });
-                })
-                .catch((error) => {
-                    reject(error);
-                });
-        })
-            .then(({locationResult, hotelsAtCityResult}) => {
-                const hotelList = getHotelListFromResults(locationResult, hotelsAtCityResult);
-                const hotelMoneySort = hotelList.filter(price => price.last_price_info.price >= rangeValueStart && price.last_price_info.price <= rangeValueEnd);
-                const sorted = [...hotelMoneySort].sort((a, b) => a.last_price_info.price - b.last_price_info.price);
-
-                // Сортировка массива на страницы
-                const list = pageDistribution(sorted);
-                // Количество объектов на странице HotelCity
-                dispatch(handlerCountHotels(sorted.length))
-                // Количество страниц
-                dispatch(countPageHandler(list.countPage + 1));
-                // Создания копии массива
-                dispatch(copyDataHotelsListHandler(list.list));
-                // Обновление количества отелей в списке параметров
-                dispatch(countOtherSortHandler(list.list));
-                // Добавление массива для последующих манипуляций
-                dispatch(dataHotelsListHandler(list.list));
-                updateHotelList();
-
-                return 'Список отелей успешно обновлен';
-            })
-            .catch((error) => {
-                console.error('Ошибка при выполнении запросов или формировании списка отелей:', error);
-                throw error;
+    const filterNumbers = async (array) => {
+        const checkIn = requestParameters.checkIn
+        const checkOut = requestParameters.checkOut
+        const guest = requestParameters.guest.adult + requestParameters.guest.child.length
+        const filteredNumbers = await array.filter(number => {
+            // Проверяем диапазон дат в bookingList
+            const isDateAvailable = number.bookingList.every(booking => {
+                return !(checkIn >= booking.checkIn && checkIn < booking.checkOut) &&
+                    !(checkOut > booking.checkIn && checkOut <= booking.checkOut);
             });
-    };
+            // Проверяем количество гостей
+            const isGuestCountValid = number.guestCount.length >= guest;
+            return isDateAvailable && isGuestCountValid;
+        });
+        return filteredNumbers
+    }
 
-
+    const filterObject =  (array, numbers) => {
+        const filterObject = array.filter(object => {
+            return numbers.find(number => object.hotelId === number.hotelId);
+        });
+        return filterObject
+    }
 
     const handleSearch = async () => {
-        if (cityOrHotel.hotelAndCity.city.name !== "") {
-            setLink("/Отели_на_карте");
-            console.log("VALUE INPUT",cityOrHotel.hotelAndCity.city.name);
+        if (requestParameters.city !== null && requestParameters.dataRange !== null && requestParameters.guest !== null) {
+
             showLoadingIndicator();
             try {
-                await createListHotels();
-                console.log('Список отелей успешно обновлен');
+                //Загрузка объектов
+                ObjectService.searchObject(requestParameters)
+                    .then(data => {
+                        const  resultObject = parseJSONPropertiesInArray(data.resultObject)
+                        const  resultNumbers = parseJSONPropertiesInArray(data.resultNumbers)
+                        filterNumbers(resultNumbers)
+                            .then(data => {
+                                const resultFilterObject = filterObject(resultObject, data)
+                                dispatch(objectListHandler(resultFilterObject))
+                                dispatch(dataNumbersListHandler(data))
+                                dispatch(setFilteredHotels(null));
+                                dispatch(countOtherSortHandler(resultFilterObject));
+                            });
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    })
+                    .finally(() => {
+                        setLink("/hotels_map");
+                    });
+
+
+                updateHotelList();
                 setIsWriteCity(false);
+
             } catch (error) {
                 console.error('Не удалось создать список отелей:', error);
                 setIsWriteCity(true);
@@ -279,25 +232,6 @@ const SearchPanel = () => {
             setLink("/");
         }
     };
-
-
-    // useEffect(() => {
-    //     if (!resultLoadData) {
-    //         handleSearch();
-    //         dispatch(resultLoadDataHandler(true));
-    //     }
-    // }, [resultLoadData, dispatch, handleSearch]);
-
-
-    // useEffect(() => {
-    //     // добавляем обработчик события click к документу:
-    //     document.addEventListener('click', function(event) {
-    //         if (event.target !== modal && event.target !== input) {
-    //             // если клик был не на модальном окне и не на его потомках, то скрываем модальное окно
-    //             modal.style.display = 'none';
-    //         }
-    //     });
-    // }, [handlerText])
 
     return (
         <div>
@@ -312,7 +246,7 @@ const SearchPanel = () => {
                             id="search__input"
                             className="search__input__text"
                             placeholder={isWriteCity ? "Введите название города" : "Город или отель"}
-                            value={cityOrHotel.hotelAndCity.city.name}
+                            value={searchCity}
                             onChange={handlerText}
                             required={true}
                         />
@@ -335,8 +269,8 @@ const SearchPanel = () => {
 
                         <ListSearch
                             style={showListSearch ? "modal__list__search" : "modal__none"}
-                            city={data.results.locations}
-                            handle={(value, cityAndHotel) => chooseCityOrHotel(value, cityAndHotel)}
+                            city={filterData}
+                            handle={(type, value) => dataSearchHandler(type, value)}
                         />
 
                     </div>
@@ -357,18 +291,14 @@ const SearchPanel = () => {
                             style={{width: "300px", cursor: "pointer"}}>
                 <span
                     className="text__content__black__14"
-                    style={{
-                        marginLeft: "10px"
-                    }}
+                    style={{marginLeft: "10px"}}
                 >
-                    {cityOrHotel.dataRange.checkIn} - {cityOrHotel.dataRange.checkOut} {cityOrHotel.dataRange.month}
+                    {requestParameters.dataRange.checkIn} - {requestParameters.dataRange.checkOut} {requestParameters.dataRange.month}
                     <span
                         className="text__content__grey__14"
-                        style={{
-                            marginLeft: "5px"
-                        }}
+                        style={{marginLeft: "5px"}}
                     >
-                        {cityOrHotel.dataRange.countNight} {wordDeclensionNight(cityOrHotel.dataRange.countNight)}
+                        {requestParameters.dataRange.countNight} {wordDeclensionNight(requestParameters.dataRange.countNight)}
                     </span>
                 </span>
                             <span className={openDataRang ? 'iconDate' : "iconBtn"}>
@@ -376,7 +306,7 @@ const SearchPanel = () => {
                     </span>
                         </div>
                         {
-                            openDataRang  && (
+                            openDataRang && (
                                 <div
                                     className="click-outside-modal-handler"
                                     onClick={handleClickOutsideDataRange}
@@ -393,7 +323,7 @@ const SearchPanel = () => {
                         }
                         <DataRange
                             style={showCalendar ? "modal__list__search" : "modal__none"}
-                            handle={() => handlerDate()}
+                            handle={(type, value) => dataSearchHandler(type, value)}
                             page={"search"}
                         />
                     </div>
@@ -421,7 +351,7 @@ const SearchPanel = () => {
                                 marginLeft: "10px"
                             }}
                         >
-                            {cityOrHotel.guest.adult + cityOrHotel.guest.child.length} {wordDeclension(cityOrHotel.guest.adult + cityOrHotel.guest.child.length)}
+                            {requestParameters.guest.adult + requestParameters.guest.child.length} {wordDeclension(requestParameters.guest.adult + requestParameters.guest.child.length)}
                         </span>
                             <span
                                 className={openGuest ? 'iconDate' : "iconBtn"}
@@ -448,8 +378,8 @@ const SearchPanel = () => {
 
                         <GuestHotel
                             style={showGuest ? "modal__guest" : "modal__none"}
-                            guest={cityOrHotel.guest.adult}
-                            child={cityOrHotel.guest.child}
+                            guest={requestParameters.guest.adult}
+                            child={requestParameters.guest.child}
                             handler={() => checkingHandler()}
                             checkOld={checkOld}
                         />
@@ -458,7 +388,7 @@ const SearchPanel = () => {
                 <ButtonIcon
                     icon={<Icon24LocationMapOutline color={WHITE}/>}
                     name={"Найти"}
-                    link={cityOrHotel.hotelAndCity.city.name === "" ? "" : "/Отели_на_карте"}
+                    link={requestParameters.city === null ? "" : "/hotels_map"}
                     style={"searchBtn"}
                     handler={() => handleSearch()}
                     styleText={"text__content__white__16"}
@@ -476,10 +406,12 @@ const SearchPanel = () => {
                             <input
                                 autoComplete="off"
                                 type="text"
+                                id="search__input"
                                 className="search__input__text"
-                                placeholder="Город или отель"
-                                value={cityOrHotel.hotelAndCity.city.name}
+                                placeholder={isWriteCity ? "Введите название города" : "Город или отель"}
+                                value={searchCity}
                                 onChange={handlerText}
+                                required={true}
                             />
                             {
                                 showListSearch && (
@@ -499,9 +431,8 @@ const SearchPanel = () => {
                             }
                             <ListSearch
                                 style={showListSearch ? "modal__list__search" : "modal__none"}
-                                city={data.results.locations}
-                                hotels={data.results.hotels}
-                                handle={(value, cityAndHotel) => chooseCityOrHotel(value, cityAndHotel)}
+                                city={filterData}
+                                handle={(type, value) => dataSearchHandler(type, value)}
                             />
                         </div>
 
@@ -532,14 +463,14 @@ const SearchPanel = () => {
                 <span
                     className="text__content__black__14"
                     style={{marginLeft: "10px"}}>
-                    {cityOrHotel.dataRange.checkIn} - {cityOrHotel.dataRange.checkOut} {cityOrHotel.dataRange.month}
+                     {requestParameters.dataRange.checkIn} - {requestParameters.dataRange.checkOut} {requestParameters.dataRange.month}
                     <span
                         className="text__content__grey__14"
                         style={{
                             marginLeft: "5px"
                         }}
                     >
-                        {cityOrHotel.dataRange.countNight} {wordDeclensionNight(cityOrHotel.dataRange.countNight)}
+                        {requestParameters.dataRange.countNight} {wordDeclensionNight(requestParameters.dataRange.countNight)}
                     </span>
                 </span>
                             <span className={openDataRang ? 'iconDate' : "iconBtn"}>
@@ -547,7 +478,7 @@ const SearchPanel = () => {
                     </span>
                         </div>
                         {
-                            openDataRang  && (
+                            openDataRang && (
                                 <div
                                     className="click-outside-modal-handler"
                                     onClick={handleClickOutsideDataRange}
@@ -564,9 +495,8 @@ const SearchPanel = () => {
                         }
                         <DataRange
                             style={showCalendar ? "modal__list__search" : "modal__none"}
-                            styles={{flexGrow: 1}}
+                            handle={(type, value) => dataSearchHandler(type, value)}
                             page={"search"}
-                            handle={() => handlerDate()}
                         />
                     </div>
                     <div style={{
@@ -587,7 +517,7 @@ const SearchPanel = () => {
                                 marginLeft: "10px"
                             }}
                         >
-                            {cityOrHotel.guest.adult + cityOrHotel.guest.child.length} {wordDeclension(cityOrHotel.guest.adult + cityOrHotel.guest.child.length)}
+                            {requestParameters.guest.adult + requestParameters.guest.child.length} {wordDeclension(requestParameters.guest.adult + requestParameters.guest.child.length)}
 
                         </span>
                             <span
@@ -617,8 +547,8 @@ const SearchPanel = () => {
                             styles={{
                                 flexGrow: 1
                             }}
-                            guest={cityOrHotel.guest.adult}
-                            child={cityOrHotel.guest.child}
+                            guest={requestParameters.guest.adult}
+                            child={requestParameters.guest.child}
                             handler={() => checkingHandler()}
                             checkOld={checkOld}
                         />
@@ -636,10 +566,12 @@ const SearchPanel = () => {
                             <input
                                 autoComplete="off"
                                 type="text"
+                                id="search__input"
                                 className="search__input__text"
-                                placeholder="Город или отель"
-                                value={cityOrHotel.hotelAndCity.city.name}
+                                placeholder={isWriteCity ? "Введите название города" : "Город или отель"}
+                                value={searchCity}
                                 onChange={handlerText}
+                                required={true}
                             />
                             {
                                 showListSearch && (
@@ -659,9 +591,8 @@ const SearchPanel = () => {
                             }
                             <ListSearch
                                 style={showListSearch ? "modal__list__search" : "modal__none"}
-                                city={data.results.locations}
-                                hotels={data.results.hotels}
-                                handle={(value, cityAndHotel) => chooseCityOrHotel(value, cityAndHotel)}
+                                city={filterData}
+                                handle={(type, value) => dataSearchHandler(type, value)}
                             />
                         </div>
                     </div>
@@ -674,9 +605,9 @@ const SearchPanel = () => {
                             style={{flexGrow: 1, cursor: "pointer"}}
                         >
                                 <span className="text__content__black__14" style={{marginLeft: "10px"}}>
-                                    {cityOrHotel.dataRange.checkIn} - {cityOrHotel.dataRange.checkOut} {cityOrHotel.dataRange.month}
+                                    {requestParameters.dataRange.checkIn} - {requestParameters.dataRange.checkOut} {requestParameters.dataRange.month}
                                     <span className="text__content__grey__14" style={{marginLeft: "5px"}}>
-                                        {cityOrHotel.dataRange.countNight} {wordDeclensionNight(cityOrHotel.dataRange.countNight)}
+                                          {requestParameters.dataRange.countNight} {wordDeclensionNight(requestParameters.dataRange.countNight)}
                                     </span>
                                     </span>
                             <span className={openDataRang ? 'iconDate' : "iconBtn"}>
@@ -684,7 +615,7 @@ const SearchPanel = () => {
                                     </span>
                         </div>
                         {
-                            openDataRang  && (
+                            openDataRang && (
                                 <div
                                     className="click-outside-modal-handler"
                                     onClick={handleClickOutsideDataRange}
@@ -701,8 +632,7 @@ const SearchPanel = () => {
                         }
                         <DataRange
                             style={showCalendar ? "modal__list__search" : "modal__none"}
-                            styles={{flexGrow: 1}}
-                            handle={() => handlerDate()}
+                            handle={(type, value) => dataSearchHandler(type, value)}
                             page={"search"}
                         />
                     </div>
@@ -714,7 +644,7 @@ const SearchPanel = () => {
                             onClick={() => handlerOpenGuest()}
                             style={{flexGrow: 1, cursor: "pointer"}}>
                                 <span className="text__content__black__14" style={{marginLeft: "10px"}}>
-                                    {cityOrHotel.guest.adult + cityOrHotel.guest.child.length} {wordDeclension(cityOrHotel.guest.adult + cityOrHotel.guest.child.length)}
+                                    {requestParameters.guest.adult + requestParameters.guest.child.length} {wordDeclension(requestParameters.guest.adult + requestParameters.guest.child.length)}
                                 </span>
                             <span className={openGuest ? 'iconDate' : "iconBtn"}>
                                     <Icon24ChevronDown color={GREY}/>
@@ -739,8 +669,8 @@ const SearchPanel = () => {
                         <GuestHotel
                             style={showGuest ? "modal__guest" : "modal__none"}
                             styles={{flexGrow: 1}}
-                            guest={cityOrHotel.guest.adult}
-                            child={cityOrHotel.guest.child}
+                            guest={requestParameters.guest.adult}
+                            child={requestParameters.guest.child}
                             handler={() => checkingHandler()}
                             checkOld={checkOld}
                         />

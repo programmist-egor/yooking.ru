@@ -14,19 +14,30 @@ import {HotelAddressOnMap} from "../components/blocks/HotelAddressOnMap";
 import {useDispatch, useSelector} from "react-redux";
 import React, {useEffect, useState} from "react";
 import {initDateRangeHandler} from "../store/HotelItem";
+import ObjectService from "../services/object.service";
+import {parseJSONProperties} from "../utils/json-parse-object";
+import PhotoObjectService from "../services/photo-object.service";
 
 
-export const HotelNumber = ({closeModals}) => {
+export const HotelNumber = () => {
     const dispatch = useDispatch()
-    const itemPage = useSelector(state => state.hotels_list.itemPage)
-    const dataHotelNumber = useSelector(state => state.hotels_item.dataHotel)
-    const dataHotelsList = useSelector(state => state.hotels_list.dataHotelsList)
+    const hotelId = localStorage.getItem("hotelId")
+    const [dataHotelNumber, setDataHotelNumber] = useState(null)
     const [width, setWidth] = useState(window.innerWidth);
     const [height, setHeight] = useState(window.innerHeight);
+    const [objectPhotos, setObjectPhotos] = useState([]);
 
     useEffect(() => {
+        if (objectPhotos.length === 0) {
+            PhotoObjectService.getAllPhotosObject("hotel", hotelId)
+                .then(data => setObjectPhotos(data))
+        }
+        ObjectService.getObject("hotel", hotelId)
+            .then(data => setDataHotelNumber(parseJSONProperties(data)))
         dispatch(initDateRangeHandler())
     }, [])
+
+    console.log("dataHotelNumber", dataHotelNumber);
 
     useEffect(() => {
         const handleResize = () => {
@@ -46,40 +57,44 @@ export const HotelNumber = ({closeModals}) => {
             <div className="header">
                 <Header/>
             </div>
-            <div className="center" onClick={closeModals}>
-                <div className="hotel__number__column" >
+            <div className="center">
+                <div className="hotel__number__column">
                     <HeaderHotelNumber
                         dataHotelNumber={dataHotelNumber}
-                        dataHotelsList={dataHotelsList}
-                        itemPage={itemPage}
                         width={width}
+                        hotelId={hotelId}
                     />
-                    <div className="row__sa__fs" onClick={closeModals}>
-                        <div className="column__fs__c laptop_768_1023__column" >
+                    <div className="row__sa__fs">
+                        <div className="column__fs__c laptop_768_1023__column">
                             {/*Быстрое бронирование*/}
                             <QuickBooking dataHotelNumber={dataHotelNumber}/>
                         </div>
                         <div className="column__fs__c"
-                             style={{ maxWidth: "100%", minWidth: "4%", }}>
+                             style={{maxWidth: "100%", minWidth: "4%",}}>
                             <SliderBig
-                                dataHotelNumber={dataHotelNumber}
-                                height={ width >= 0 && width <= 530 ? "300px" : "600px"}
+                                photos={objectPhotos}
+                                height={width >= 0 && width <= 530 ? "300px" : "600px"}
                                 maxWidth={""}
                                 borderRadius={"20px"}
                                 minWidth={""}
                                 mb={"20px"}
                                 padding={"20px"}
                             />
-                            { width >= 0 && width <= 1023 ? <QuickBooking dataHotelNumber={dataHotelNumber}/>  : "" }
-                            <DescriptionHotel/>
+                            {width >= 0 && width <= 1023 ? <QuickBooking dataHotelNumber={dataHotelNumber}/> : ""}
+                            <DescriptionHotel dataHotelNumber={dataHotelNumber}/>
                             <HotelRules dataHotelNumber={dataHotelNumber}/>
                             <CheckAvailability dataHotelNumber={dataHotelNumber}/>
                             <Availability dataHotelNumber={dataHotelNumber}/>
-                            <HotelAmenities/>
-                            {/*<GuestRating dataHotelNumber={dataHotelNumber}/>*/}
-                            <ReviewClients/>
+                            <HotelAmenities dataHotelNumber={dataHotelNumber}/>
+                            <GuestRating hotelId={hotelId}/>
+                            <ReviewClients hotelId={hotelId}/>
+                            <span
+                                className="text__content__black__b__20"
+                                style={{marginBottom: "30px"}}
+                            >
+                                Местоположение
+                            </span>
                             <HotelAddressOnMap dataHotelNumber={dataHotelNumber}/>
-
                         </div>
                     </div>
                 </div>

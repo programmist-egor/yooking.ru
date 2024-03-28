@@ -4,13 +4,10 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 import {Provider, useDispatch} from "react-redux";
 import store from "./store";
-import {Spinner} from "./components/spinner/Spinner";
 import {ErrorBoundary} from "./components/ErrorBoundary/ErrorBoundary";
 import "./firebase"
-import {StartingPage} from "./routes/StartingPage";
-
-
-
+import {BrowserRouter} from "react-router-dom";
+import {Spinner} from "./components/spinner/Spinner";
 
 
 const App = React.lazy(() => import("./App"));
@@ -20,9 +17,11 @@ root.render(
     <React.StrictMode>
         <ErrorBoundary>
             <Provider store={store}>
-                <Suspense fallback={<StartingPage/>}>
-                    <App/>
-                </Suspense>
+                <BrowserRouter>
+                    <Suspense fallback={<Spinner/>}>
+                        <App/>
+                    </Suspense>
+                </BrowserRouter>
             </Provider>
         </ErrorBoundary>
     </React.StrictMode>

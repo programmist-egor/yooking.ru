@@ -1,7 +1,7 @@
 import {Box, Divider, Drawer, FormControl, InputLabel, List, MenuItem, Select} from "@mui/material";
 import React, {useState} from "react"
 import {Icon24UserAddOutline, Icon24UserOutline, Icon28Menu} from "@vkontakte/icons";
-import {BLACK, RED} from "../../theme/colors";
+import {BLACK} from "../../theme/colors";
 import {Link} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {handlerLangChoose} from "../../store/Main";
@@ -35,15 +35,19 @@ export const DrawerMenu = () => {
         >
             <List>
                 {[
-                    {name: 'Войти', link: "/Войти", icon: <Icon24UserOutline color={BLACK}/>},
+                    {
+                        name: 'Войти',
+                        link: "/api/login",
+                        icon: <Icon24UserOutline color={BLACK}/>
+                    },
                     {
                         name: 'Зарегистрироваться',
-                        link: "/Зарегистрироваться",
+                        link: "/api/registration",
                         icon: <Icon24UserAddOutline color={BLACK}/>
                     },
                     {
                         name: 'Зарегистрировать объект',
-                        link: "/Зарегистрировать_объект",
+                        link: "extranet.yooking.ru",
                         icon: <Icon24UserOutline color={BLACK}/>
                     },
                 ].map((item) => (

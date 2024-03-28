@@ -1,7 +1,6 @@
 export const dateFormater = (date) => {
     let arr = []
     const value = date.toLocaleDateString().replace(/[./]/g, "-");
-    console.log(value.slice(0, 2));
     arr.push(value.slice(6, 10))
     arr.push(value.slice(3, 5))
     arr.push(value.slice(0, 2))

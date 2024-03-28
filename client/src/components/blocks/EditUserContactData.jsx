@@ -1,49 +1,113 @@
-import {RED, WHITE} from "../../theme/colors";
+import {BLACK, GREEN, GREY, GREY_BLACK, GREY_WHITE, RED, WHITE} from "../../theme/colors";
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import InputMask from "react-input-mask";
 import {
     dateClientHandler,
-    checkHandler, finishedBookingHandler, setClientHandler,
+    checkHandler, finishedBookingHandler, setClientHandler, resetPasswordHandler,
 } from "../../store/ClientData";
-import {Icon24BriefcaseOutline, Icon24Done} from "@vkontakte/icons";
+import {Icon24Refresh, Icon24SendOutline, Icon24Done} from "@vkontakte/icons";
 import {ButtonIcon} from "../buttons/ButtonIcon";
-import {ref, update} from "firebase/database";
-import {database} from "../../firebase";
+import {useNavigate} from "react-router-dom";
+import UsersService from "../../services/users.service";
+import {Button} from "../buttons/Button";
+
 
 
 export const EditUserContactData = () => {
     const dispatch = useDispatch()
-    const clientData = useSelector(state => state.client__data.dateClient)
-    const [checkPhone, setCheckPhone] = useState(false);
-    const [checkEmail, setCheckEmail] = useState(false);
-    const [checkName, setCheckName] = useState(false);
-    const [email, setEmail] = useState('');
-    const [name, setName] = useState('');
-    const [phone, setPhone] = useState('');
-    const [oldPassword, setOldPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
+    const [code, setCode] = useState("");
     const [width, setWidth] = useState(window.innerWidth);
     const [height, setHeight] = useState(window.innerHeight);
+    const [saveData, setSaveData] = useState(false);
+    const userId = useSelector((state) => state.auth.userId);
+    const [nameValue, setNameValue] = useState("")
+    const [city, setCity] = useState("")
+    const [lastNameValue, setLastNameValue] = useState("")
+    const [phoneUser, setPhoneUser] = useState("")
+    const [emailUser, setEmailUser] = useState("")
+    const [isConfirmPhone, setIsConfirmPhone] = useState(false);
+    const [confirmPhone, setConfirmPhone] = useState(true);
+    const [codeConfirmForPhone, setCodeConfirmForPhone] = useState("");
+    const [codeConfirmForPhoneInput, setCodeConfirmForPhoneInput] = useState("");
+    const [userYooking, setUserYooking,] = useState({})
+    const [msg, setMsg] = useState("")
 
-    const validateEmail = (email) => {
-        return email.match(
-            /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-        );
-    };
+
+    const updateUserExtranet = () => {
+        UsersService.getUserYooking("edit_user", userId)
+            .then(data => {
+                setUserYooking(data)
+                console.log("data", data);
+                setNameValue(data.name)
+                setCity(data.city)
+                setLastNameValue(data.lastName)
+                setPhoneUser(data.phone)
+                setEmailUser(data.email)
+                setIsConfirmPhone(data.isConfirmPhone)
+                setCodeConfirmForPhone(data.codeConfirmForPhone)
+            })
+            .catch(error => {
+                console.log(error);
+            })
+    }
+
+    useEffect(() => {
+        if (nameValue === "" || lastNameValue === "" || phoneUser === "" || emailUser === "") {
+            updateUserExtranet()
+        }
 
 
-    const nameOnChange = (e) => {
-        dispatch(setClientHandler({id: "name", value: e.target.value}))
+    }, [])
+
+    const setNameInputChange = (e) => {
+        setNameValue(e.target.value)
     }
-    const phoneOnChange = (e) => {
-        dispatch(setClientHandler({id: "phone", value: e.target.value}))
+    const setLastNameInputChange = (e) => {
+        setLastNameValue(e.target.value)
     }
-    const emailOnChange = (e) => {
-        dispatch(setClientHandler({id: "email", value: e.target.value}))
+    const setCityInputChange = (e) => {
+        setCity(e.target.value)
     }
-    const passOnChange = (e) => {
-        dispatch(setClientHandler({id: "pass", value: e.target.value}))
+    const setCodeConfirm = (e) => {
+        setCodeConfirmForPhoneInput(e.target.value)
+    }
+    console.log(codeConfirmForPhone);
+    console.log("codeConfirmForPhoneInput",codeConfirmForPhoneInput);
+
+    const sendCodeConfirm = () => {
+        setConfirmPhone(false)
+        UsersService.generateCode("edit_user",userId)
+            .then(data => console.log(data))
+            .catch(e => console.log(e))
+            .finally(() => updateUserExtranet())
+    }
+    const codeConfirm = () => {
+        const dataUserYooking = {
+            ...userYooking,
+            isConfirmPhone: true
+        }
+        console.log("dataUserYooking",dataUserYooking);
+        if (codeConfirmForPhone === +codeConfirmForPhoneInput) {
+            UsersService.updateUserYooking("edit_user", userId, dataUserYooking)
+                .then(data => console.log("DATA UPDATE CONFIRM PHONE", data))
+                .catch(e => console.log(e))
+                .finally(() => updateUserExtranet())
+        } else {
+            console.log("Код не совпадает");
+        }
+    }
+    const saveSettingProfile = () => {
+        const dataUserYooking = {
+            ...userYooking,
+            name: nameValue,
+            lastName: lastNameValue,
+            city: city,
+        }
+        UsersService.updateUserYooking("edit_user", userId, dataUserYooking)
+            .then(() => setMsg("Данные сохранены!"))
+            .catch(() => setMsg("Ошибка при сохранении!"))
+            .finally(() => updateUserExtranet())
     }
 
 
@@ -60,140 +124,172 @@ export const EditUserContactData = () => {
         }
     }, []);
 
-    const saveHandler = async (name, phone, email) => {
-        if (clientData.name !== "") {
-            setTimeout(() => {
-                setCheckName(false)
-            }, 5000)
-        } else {
-            setCheckName(true)
-        }
-        const regex = /^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/;
-        if (regex.test(clientData.phone)) {
-            setTimeout(() => {
-                setCheckPhone(false)
-            }, 5000)
-        } else {
-            setCheckPhone(true)
-        }
-        if (validateEmail(clientData.email) && clientData.email !== "") {
-            setTimeout(() => {
-                setCheckEmail(false)
-            }, 5000)
-        } else {
-            setCheckEmail(true)
-        }
-
-        //Завершение бронирования
-        dispatch(checkHandler(true))
-        //Открытие модульного окна об бронировании
-        dispatch(finishedBookingHandler(true))
-
-        // dispatch(checkHandler(false))
-       await update(ref(database, `/usersData/${clientData.userid}`), {
-            name: name,
-            phone: phone,
-            email: email,
-        })
-
-    }
-
     return (
-        <div className="column__c__c" style={{marginLeft: "2%", marginRight: "2%"}}>
-            <div className="column__c__c contact__block">
+        <div className="column__c__c" style={{margin: "2%"}}>
+            <div className="center column__c__c">
+                <div className="column width__center__660">
+                    <div className="column" style={{height: "100%", background: WHITE, padding: 10}}>
+                        <div className="row__c__fs mt__mr">
+                            <span className="text__content__black__b__20">Настройки</span>
+                        </div>
+                        <div className="row__sb__c ">
+                            <div className="column__fs">
+                                    <span className="text__content__grey__12 mt__mb__5"><span
+                                        style={{color: RED}}>*</span> Имя</span>
+                                <input
+                                    type="text"
+                                    id="nameSetting"
+                                    required={true}
+                                    placeholder="Ваше имя"
+                                    className="inputRegObj"
+                                    value={nameValue}
+                                    style={{color: BLACK}}
+                                    onChange={(e) => setNameInputChange(e)}
+                                />
+                            </div>
+                            <div className="column__fs">
+                                    <span className="text__content__grey__12 mt__mb__5"><span
+                                        style={{color: RED}}>*</span> Фамилия</span>
+                                <input
+                                    type="text"
+                                    id="lastNameSetting"
+                                    required={true}
+                                    placeholder="Ваша фамилия"
+                                    className="inputRegObj"
+                                    style={{color: BLACK}}
+                                    value={lastNameValue}
+                                    onChange={(e) => setLastNameInputChange(e)}
+                                />
+                            </div>
 
-                <h3>Ваши контактные данные</h3>
+                        </div>
+                        <div className="row__sb__c ">
+                            <div className="column__fs">
+                                    <span className="text__content__grey__12 mt__mb__5"><span
+                                        style={{color: RED}}>*</span> Фамилия</span>
+                                <input
+                                    type="text"
+                                    id="citySetting"
+                                    required={true}
+                                    placeholder="Ваш город"
+                                    className="inputRegObj"
+                                    style={{color: BLACK}}
+                                    value={city}
+                                    onChange={(e) => setCityInputChange(e)}
+                                />
+                            </div>
+                            <div className="column__fs">
+                                    <span className="text__content__grey__12 mt__mb__5"><span
+                                        style={{color: RED}}>*</span> Email</span>
+                                <input
+                                    value={emailUser}
+                                    // onChange={handleChange}
+                                    id="emailObjSetting"
+                                    type="email"
+                                    placeholder="Введите Email"
+                                    style={{color: emailUser !== "" ? GREY : BLACK}}
+                                    disabled={emailUser !== "" ? true : false}
+                                    className={"inputRegObj"}
+                                />
 
-                <label>
-                    <span className="text__content__grey__12"><span
-                        style={{color: RED}}>*</span> Обязательное поле</span>
-                    <input
-                        type="text"
-                        required={true}
-                        placeholder="Ваше имя"
-                        className="inputEditUser"
-                        value={clientData.name}
-                        onChange={nameOnChange}
-                    />
-                </label>
-
-                <label >
-                    <span className="text__content__grey__12"><span
-                        style={{color: RED}}>*</span> Обязательное поле</span>
-                    <InputMask
-                        value={clientData.phone}
-                        className="inputEditUser "
-                        onChange={(e) => phoneOnChange(e)}
-                        mask="+7 (999) 999-99-99"
-                        placeholder="+7 (999) 999-99-99"
-                    />
-                </label>
-
-                <label>
-                    <span className="text__content__grey__12"><span
-                        style={{color: RED}}>*</span> Обязательное поле</span>
-                    <input
-                        type="email"
-                        required={true}
-                        placeholder="Ваше email"
-                        className="inputEditUser"
-                        value={clientData.email}
-                        onChange={emailOnChange}
-                    />
-                </label>
-                <div className="row__fs__fs">
-                    <h4>Изменить пароль</h4>
-                </div>
-                    <input
-                        type="password"
-                        required={true}
-                        placeholder="Старый пароль"
-                        className="inputEditUser"
-                        value={oldPassword}
-                        onChange={passOnChange}
-                    />
-
-                    <input
-                        type="password"
-                        required={true}
-                        placeholder="Новый пароль"
-                        className="inputEditUser"
-                        value={newPassword}
-                        onChange={passOnChange}
-                    />
+                            </div>
+                        </div>
+                        <div className="row__sb__c ">
+                            <div className="column__fs">
+                                    <span className="text__content__grey__12 mt__mb__5"><span
+                                        style={{color: RED}}>*</span> Номер телефона</span>
+                                <InputMask
+                                    id="phoneObjSetting"
+                                    value={phoneUser}
+                                    // onChange={(e) => handleChange(e)}
+                                    type="tel"
+                                    style={{color: phoneUser !== "" ? GREY : BLACK}}
+                                    mask="+79999999999"
+                                    placeholder="+79999999999"
+                                    disabled={phoneUser !== "" ? true : false}
+                                    className={"inputRegObj"}
+                                />
+                            </div>
 
 
-                {checkPhone ?
-                    <span className="text__content__black__b__14"
-                          style={{
-                              marginTop: "5px",
-                              marginBottom: "5px",
-                              color: RED
-                          }}>Некорректный номер телефона</span>
-                    :
-                    ""
-                }
-                {checkEmail ?
-                    <span className="text__content__black__b__14"
-                          style={{marginTop: "5px", marginBottom: "5px", color: RED}}>Некорректный email</span>
-                    :
-                    ""
-                }
-                {checkName ?
-                    <span className="text__content__black__b__14"
-                          style={{marginTop: "5px", marginBottom: "5px", color: RED}}>Вы не указали свое имя</span>
-                    :
-                    ""
-                }
-                <div style={{marginBottom: "25px", marginTop: "25px"}}>
-                    <ButtonIcon
-                        handler={() => saveHandler(clientData.name, clientData.phone, clientData.email)}
-                        icon={<Icon24Done color={WHITE}/>}
-                        style={"doneBtn"}
-                        name={"Сохранить"}
-                        styleText={"text__content__white__16"}
-                        width={width >= 0 && width <= 530 ? "280px" : "300px"}
-                    />
+
+                        </div>
+                        {isConfirmPhone ?
+                            <span className="text__content__grey__12" style={{color: GREEN}}>Номер телефона
+                                подтвержден</span>
+                            :
+                            confirmPhone ?
+                                <div className="column__fs">
+                                    <span className="text__content__grey__12" style={{color: RED}}>* Номер телефона не
+                                        подтвержден</span>
+                                    <p
+                                        onClick={() => sendCodeConfirm()}
+                                        style={{cursor: "pointer"}}
+                                        className="text__content__grey__b__12">
+                                        Подтвердить номер?
+                                    </p>
+                                </div>
+                                :
+                                <div className="column">
+                                    <div className="column">
+                                        <input
+                                            value={codeConfirmForPhoneInput}
+                                            onChange={(e) => setCodeConfirm(e)}
+                                            id="emailObjSetting"
+                                            type="number"
+                                            placeholder="Введите код"
+                                            style={{color: BLACK}}
+                                            className={"inputRegObj"}
+                                        />
+                                        <p className="text__content__grey__12" style={{color: GREY}}>
+                                            На вашу почту <span
+                                            className="text__content__grey__b__12">{emailUser}</span> отправлен код!
+                                        </p>
+                                        <div className="row__c__fs" style={{marginLeft: -10}}>
+                                            <Button
+                                                name={"Подтвердить"}
+                                                style={"cancelBookingBtn"}
+                                                styleText={"text__content__white__14"}
+                                                handler={() => codeConfirm()}
+                                            />
+                                            <Button
+                                                name={"Отмена"}
+                                                style={"cancelBookingBtn"}
+                                                color={GREY_BLACK}
+                                                styleText={"text__content__white__14"}
+                                                handler={() => setConfirmPhone(true)}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                        }
+
+                        <Button
+                            name={"Сменить пароль"}
+                            style={"changePasswordButton"}
+                            marginTop={20}
+                            styleText={"text__content__white__14"}
+                            handler={() => console.log("Сменить пароль")}
+                        />
+                        <div className="row__c__c" style={{marginBottom: "25px",  marginTop: "25px"}}>
+                            <ButtonIcon
+                                handler={() => saveSettingProfile()}
+                                icon={<Icon24Done color={WHITE}/>}
+                                style={"changePasswordButton"}
+                                name={"Сохранить"}
+                                styleText={"text__content__white__14"}
+                                width={width >= 0 && width <= 530 ? "280px" : "300px"}
+                            />
+                            <div className="row__c__c">
+                                {saveData ?
+                                    <span className="text__content__black__12"
+                                          style={{marginTop: "5px", marginBottom: "5px", textAlign: "center", color: GREEN}}>Данные сохранены!</span>
+                                    :
+                                    ""
+                                }
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

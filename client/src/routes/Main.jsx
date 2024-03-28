@@ -9,11 +9,11 @@ import banner from "../img/banner-main.jpg"
 import React, {useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {checkInHandler, checkOutHandler, initDateRangeHandler} from "../store/Search";
-import {DataRange} from "../components/сalendar/DataRange";
+import {DataRange} from "../components/calendar/DataRange";
 import {dateFormater} from "../components/hooks/dataFormater";
 
 
-export const Main = ({closeModals}) => {
+export const Main = () => {
     const cityOrHotel = useSelector(state => state.search.cityOrHotel)
     const dispatch = useDispatch()
 
@@ -40,15 +40,14 @@ export const Main = ({closeModals}) => {
                 <BannerSearch
                     header={"ЖИВИТЕ ТАМ, ГДЕ НРАВИТСЯ"}
                     banner={banner}
-                    closeModals={closeModals}
+
                 />
                 <div className="column" style={{margin: "1%"}}>
-                    <WhereToGo closeModals={closeModals}/>
+                    <WhereToGo />
                     <BenefitBlock/>
                     <MobileApp/>
                 </div>
 
-                {/*<FollowUs/>*/}
             </div>
             <div className="footer">
                 <Footer/>

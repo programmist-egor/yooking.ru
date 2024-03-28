@@ -1,19 +1,21 @@
 import {createSlice} from "@reduxjs/toolkit";
-import getCookie from "../components/hooks/getCookie";
-import {ref, update} from "firebase/database";
-import {database} from "../firebase";
+
 
 const client__data = createSlice({
     name: 'main',
     initialState: {
         dateClient:
             {
-                auth: false,
                 email: "",
-                name: "",
                 phone: "",
                 token: "",
-                userid: ""
+                userid: "",
+                name: "",
+                favorite: "",
+                booking: "",
+                hotelList: "",
+                emailVerified: false,
+                phoneVerified: false
             },
         link: "/",
         bookingDetail: [],
@@ -25,10 +27,14 @@ const client__data = createSlice({
         countNight: 0,
         checkInput: false,
         finishedBooking: false,
+        resetPassword: false,
+        resetPasswordLogIn: false,
+        verifedEmail: false,
         bookingUserData: [],
         favoriteUserData: [],
         favoriteUserDataDB: [],
-        loaderFavoriteAndBooking: false
+        loaderFavoriteAndBooking: false,
+        errorResetLogInEmail: false
     },
     reducers: {
         dateClientHandler(state, action) {
@@ -78,6 +84,18 @@ const client__data = createSlice({
         finishedBookingHandler(state, action) {
             state.finishedBooking = action.payload
         },
+        resetPasswordHandler(state, action) {
+            state.resetPassword = action.payload
+        },
+        resetPasswordLogInHandler(state, action) {
+            state.resetPasswordLogIn = action.payload
+        },
+        verifedEmailHandler(state, action) {
+            state.verifedEmail = action.payload
+        },
+        errorResetLogInEmailHandler(state, action) {
+            state.errorResetLogInEmail = action.payload
+        },
         //Добавление забронированных отелей
         bookingUserDataHandler(state, action) {
             const newArray = state.bookingUserData
@@ -95,7 +113,7 @@ const client__data = createSlice({
             newArray.splice(idx, 1);
             state.bookingUserData = newArray
         },
-        //Добавление забронированных отелей
+        //Добавление в избранное отель
         addFavoriteUserDataHandler(state, action) {
             const newArray = state.favoriteUserData
             newArray.push(action.payload)
@@ -117,6 +135,10 @@ const client__data = createSlice({
 
 export const {
     dateClientHandler,
+    resetPasswordHandler,
+    resetPasswordLogInHandler,
+    errorResetLogInEmailHandler,
+    verifedEmailHandler,
     bookingDetailHandler,
     loaderFavoriteAndBookingHandler,
     favoriteUserDataDB,

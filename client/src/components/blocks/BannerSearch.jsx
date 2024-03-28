@@ -3,11 +3,10 @@ import {WHITE} from "../../theme/colors";
 
 
 
-export const BannerSearch = ({banner, header, closeModals, addHeader, q}) => {
+export const BannerSearch = ({banner, header,  addHeader, q}) => {
     return (
         <div
             className="row__c__c"
-            onClick={closeModals}
             style={{
                 height: "590px",
                 backgroundImage: `url(${banner})`,

@@ -1,4 +1,5 @@
 import {createSlice} from "@reduxjs/toolkit";
+import {dateFormater, monthText} from "../utils/dataFormater";
 
 const hotels_item = createSlice({
     name: 'hotels_item',
@@ -7,9 +8,11 @@ const hotels_item = createSlice({
         showCalendar: false,
         showGuest: false,
         cityOrHotel: {
-            hotelAndCity: {city: {name: "", id: 0, countHotels: 0, location: {},}, hotel: {name: "", location: {}, id: 0}},
-            dataRange: {checkIn: "", checkOut: "", month: "", countNight: 6},
-            guest: {adult: 1, child: []}
+            city: {city: "", hotelId: "", location: {}},
+            dataRange:{checkIn:new Date().getDate(), checkOut: new Date().getDate() + 2, month: monthText(new Date().getMonth()), countNight: 2},
+            guest: {adult: 1, child: []},
+            checkIn: dateFormater(new Date()),
+            checkOut: dateFormater(new Date(new Date().setDate(new Date().getDate() + 2))),
         },
         checkIn: "",
         checkOut: "",
@@ -77,19 +80,15 @@ const hotels_item = createSlice({
             state.showCalendar = state.showCalendar = action.payload
         },
         cityOrHotelHandler(state, action) {
-            if (action.payload.cityAndHotel === "city") {
-                state.cityOrHotel.hotelAndCity.city = action.payload.value
-            } else {
-                state.cityOrHotel.hotelAndCity.hotel = action.payload.value
-            }
-
+            state.cityOrHotel.city = action.payload
         },
         cityOrHotelInput(state, action) {
-            state.cityOrHotel.hotelAndCity.city.name = action.payload
+            state.cityOrHotel.city = action.payload
         },
         handlerDataRange(state, action) {
-            console.log(action.payload);
-            state.cityOrHotel.dataRange  = {checkIn: action.payload.checkIn, checkOut: action.payload.checkOut, month: action.payload.month, countNight: action.payload.countNight}
+            state.cityOrHotel.dataRange = action.payload.dataRange
+            state.cityOrHotel.checkIn = action.payload.checkIn
+            state.cityOrHotel.checkOut = action.payload.checkOut
         },
         handlerAddGuest(state, action) {
             if (state.cityOrHotel.guest.adult >= 6) {

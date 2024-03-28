@@ -1,20 +1,31 @@
 import {GREY, WHITE} from "../../theme/colors";
-import prewiew from "../../img/preview.png"
-import {AvailabilityItems} from "./AvailabilityItems";
+
 import {Spinner} from "../spinner/Spinner";
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {loadingListHandler} from "../../store/HotelItem";
 import {useDispatch, useSelector} from "react-redux";
+import {ListNumberCard} from "../cards/ListNumberCard";
+import {MoreNumber} from "../modals/MoreNumber";
 
 export const Availability = ({dataHotelNumber}) => {
     const dispatch = useDispatch()
     const loading = useSelector(state => state.hotels_item.loadingList)
+    const dataNumbersList = useSelector(state => state.hotels_list.dataNumbersList)
+    const [width, setWidth] = useState(window.innerWidth);
+    const loadingNumberList = useSelector(state => state.hotels_list.loadingNumberList)
+
 
     useEffect(() => {
-        setTimeout(() => {
-            dispatch(loadingListHandler({type: "hotelList", value: {res: true, time: 3000}}))
-        }, loading.time)
-    }, [loading.res])
+        const handleResize = () => {
+            setWidth(window.innerWidth);
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
 
 
     return (
@@ -23,7 +34,7 @@ export const Availability = ({dataHotelNumber}) => {
             style={{
                 background: WHITE,
                 borderRadius: "20px",
-                padding: "20px",
+                padding: "20px 0px 20px 20px ",
                 height: "100%",
                 marginBottom: "40px"
             }}
@@ -36,37 +47,38 @@ export const Availability = ({dataHotelNumber}) => {
             >
                 Наличие свободных мест
             </span>
-            <div className="column" style={{overflowY: "scroll", height: "50vh"}}>
-                <>
-                    <div className="row__c__c">
-                        <h3 style={{color: GREY}}>Ничего не найдено</h3>
-                    </div>
+            <div className="column number__list__center__scroll" style={{ height: "50vh"}}>
+                {loadingNumberList ?
+                    <Spinner/>
+                    :
+                    dataNumbersList && dataNumbersList.length !== 0 ?
+                        dataNumbersList.map(number => (
+                            <ListNumberCard
+                                key={number.id}
+                                name={number.name}
+                                id={number.id}
+                                hotelId={number.hotelId}
+                                number={number}
+                                categoryId={number.categoryId}
+                                guestCount={number.guestCount.length}
+                                area={number.area}
+                                priceBase={number.priceBase}
+                                bedroom={number.countBedrooms}
+                                hasWiFi={number.has_wifi.value}
+                                width={width}
+                                dataHotelNumber={dataHotelNumber}
+                            />
+                        ))
+                        :
+                        <>
+                            <div className="row__c__c">
+                                <h3 style={{color: GREY}}>Нет свободных номеров</h3>
+                            </div>
 
-                </>
-                {/*{loading.res ?*/}
-                {/*    dataHotelNumber.countFreeNumberHotel !== 0 ?*/}
-                {/*        dataHotelNumber.freeNumbersHotel.map(item => (*/}
-                {/*            <AvailabilityItems*/}
-                {/*                id={item.id}*/}
-                {/*                header={item.header}*/}
-                {/*                price={item.price}*/}
-                {/*                date={item.date}*/}
-                {/*                img={item.img}*/}
-                {/*                text={item.text}*/}
-                {/*                content={item.content}*/}
-                {/*            />*/}
-                {/*        ))*/}
-                {/*        :*/}
-                {/*        <>*/}
-                {/*            <div className="row__c__c">*/}
-                {/*                <h3 style={{color: GREY}}>Ничего не найдено</h3>*/}
-                {/*            </div>*/}
-
-                {/*        </>*/}
-                {/*    :*/}
-                {/*    <Spinner/>*/}
-                {/*}*/}
+                        </>
+                }
             </div>
+
         </div>
     )
 }

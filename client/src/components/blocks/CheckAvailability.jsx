@@ -7,24 +7,22 @@ import {
     Icon24Search,
     Icon24Cancel
 } from "@vkontakte/icons";
-import {DataRange} from "../сalendar/DataRange";
-import React, {useState} from "react";
+import {DataRange} from "../calendar/DataRange";
+import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {wordDeclension, wordDeclensionNight} from "../utils/word-declensions";
-import {loadingListHandler, showCalendarHandler, showGuestHandler} from "../../store/HotelItem";
+import {wordDeclension, wordDeclensionNight} from "../../utils/word-declensions";
+import { showCalendarHandler, handlerDataRange, showGuestHandler} from "../../store/HotelItem";
 import {GuestHotelNumber} from "../search/GuestHotelNumber";
 import Drawer from "react-modern-drawer";
-import {finishedBookingHandler} from "../../store/ClientData";
+import NumberService from "../../services/number.service";
+import {parseJSONPropertiesInArray} from "../../utils/json-parse-object";
+import {dataNumbersListHandler, loadingNumberListHandler} from "../../store/HotelsList";
+
 
 
 export const CheckAvailability = () => {
-    const handler = (event) => {
-        console.log(event.target.value);
-    }
-
-
     const dispatch = useDispatch()
-    const cityOrHotel = useSelector(state => state.hotels_item.cityOrHotel)
+    const requestParameters = useSelector(state => state.hotels_item.cityOrHotel)
     const showCalendar = useSelector(state => state.hotels_item.showCalendar)
     const showGuest = useSelector(state => state.hotels_item.showGuest)
     const [openDataRang, setOpenDataRang] = useState(false)
@@ -32,6 +30,9 @@ export const CheckAvailability = () => {
     const [checkOld, setCheckOld] = useState(false)
     const [phone, setPhone] = useState("");
     const [isOpen, setIsOpen] = React.useState(false)
+    const [dataNumbersList, setDataNumbersList] = useState([])
+    const hotelId = localStorage.getItem("hotelId")
+    const dataNumbers = useSelector(state => state.hotels_list.dataNumbersList)
 
     const toggleDrawer = () => {
         setIsOpen((prevState) => !prevState)
@@ -52,13 +53,18 @@ export const CheckAvailability = () => {
         setOpenDataRang(!openDataRang)
         dispatch(showCalendarHandler(!showCalendar))
     }
-
+    const dataSearchHandler = (type, value) => {
+        if (type === "DataRange") {
+            dispatch(handlerDataRange(value))
+            handlerDate()
+        }
+    }
     const handlerOpenGuest = () => {
         setGuest(!openGuest)
         dispatch(showGuestHandler(!showGuest))
     }
     const checkingHandler = () => {
-        if (cityOrHotel.guest.child.map(child => child.old === "Возраст")[0]) {
+        if (requestParameters.guest.child.map(child => child.old === "Возраст")[0]) {
             setCheckOld(true)
         } else {
             setGuest(!openGuest)
@@ -66,11 +72,54 @@ export const CheckAvailability = () => {
             setCheckOld(false)
         }
     }
+    const filterNumbers = async (array) => {
+        const checkIn = requestParameters.checkIn
+        const checkOut = requestParameters.checkOut
+        const guest = requestParameters.guest.adult + requestParameters.guest.child.length
+
+        const filteredNumbers = await array.filter(number => {
+            // Проверяем диапазон дат в bookingList
+            const isDateAvailable = number.bookingList.every(booking => {
+                return !(checkIn >= booking.checkIn && checkIn < booking.checkOut) &&
+                    !(checkOut > booking.checkIn && checkOut <= booking.checkOut);
+            });
+            // Проверяем количество гостей
+            const isGuestCountValid = number.guestCount.length >= guest;
+            return isDateAvailable && isGuestCountValid;
+        });
+
+        return filteredNumbers
+    }
+
+    useEffect(() => {
+        if (dataNumbers.length === 0) {
+            console.log("INIT NUMBERS");
+            NumberService.getAllNumbers("hotel", hotelId)
+                .then(data => {
+                    const resultNumb = parseJSONPropertiesInArray(data)
+                    filterNumbers(resultNumb)
+                        .then(data => {
+                            dispatch(dataNumbersListHandler(data))
+                        })
+                })
+        }
+    }, [])
+
+
 
 
     const handlerCheckedPlace = () => {
-        console.log("ПРОВЕРКА СВОБОДНЫХ МЕСТ");
-        dispatch(loadingListHandler({type: "hotelList", value: {res: false, time: 3000}}))
+        dispatch(loadingNumberListHandler(true))
+        NumberService.getAllNumbers("hotel", hotelId)
+            .then(data => {
+                const resultNumb = parseJSONPropertiesInArray(data)
+                filterNumbers(resultNumb)
+                    .then(data => {
+                        dispatch(dataNumbersListHandler(data))
+                    })
+                    .catch(e => console.log(e))
+                    .finally(() => dispatch(loadingNumberListHandler(false)))
+            })
     }
 
 
@@ -96,9 +145,9 @@ export const CheckAvailability = () => {
                                     <div className="row__c__fs" style={{marginLeft: "10px"}}>
                                         <Icon24CalendarOutline color={BLACK}/>
                                         <span className="text__content__black__14" style={{marginLeft: "10px"}}>
-                                        {cityOrHotel.dataRange.checkIn} - {cityOrHotel.dataRange.checkOut} {cityOrHotel.dataRange.month}
+                                        {requestParameters.dataRange.checkIn} - {requestParameters.dataRange.checkOut} {requestParameters.dataRange.month}
                                             <span className="text__content__grey__14" style={{marginLeft: "5px"}}>
-                                            {cityOrHotel.dataRange.countNight} {wordDeclensionNight(cityOrHotel.dataRange.countNight)}
+                                            {requestParameters.dataRange.countNight} {wordDeclensionNight(requestParameters.dataRange.countNight)}
                                         </span>
                                 </span>
                                     </div>
@@ -107,7 +156,7 @@ export const CheckAvailability = () => {
                                 </span>
                                 </div>
                                 {
-                                    openDataRang  && (
+                                    openDataRang && (
                                         <div
                                             className="click-outside-modal-handler"
                                             onClick={handleClickOutsideDataRange}
@@ -124,8 +173,8 @@ export const CheckAvailability = () => {
                                 }
                                 <DataRange
                                     style={showCalendar ? "modal__list__search" : "modal__none"}
-                                    handle={() => handlerDate()}
-                                    page={"hotel"}
+                                    handle={(type, value) => dataSearchHandler(type, value)}
+                                    page={"search"}
                                 />
                             </div>
                         </div>
@@ -138,7 +187,7 @@ export const CheckAvailability = () => {
                                 <div className="row__c__fs" style={{marginLeft: "10px"}}>
                                     <Icon24CalendarOutline color={BLACK}/>
                                     <span className=" text__content__black__14" style={{marginLeft: "10px"}}>
-                                    {cityOrHotel.guest.adult + cityOrHotel.guest.child.length} {wordDeclension(cityOrHotel.guest.adult + cityOrHotel.guest.child.length)}
+                                    {requestParameters.guest.adult + requestParameters.guest.child.length} {wordDeclension(requestParameters.guest.adult + requestParameters.guest.child.length)}
                                 </span>
                                 </div>
                                 <span className={openGuest ? 'iconDate' : "iconBtn"}>
@@ -163,8 +212,8 @@ export const CheckAvailability = () => {
                             }
                             <GuestHotelNumber
                                 style={showGuest ? "modal__guest" : "modal__none"}
-                                guest={cityOrHotel.guest.adult}
-                                child={cityOrHotel.guest.child}
+                                guest={requestParameters.guest.adult}
+                                child={requestParameters.guest.child}
                                 handler={() => checkingHandler()}
                                 checkOld={checkOld}
                             />
@@ -173,7 +222,7 @@ export const CheckAvailability = () => {
                     <ButtonIcon
                         handler={() => handlerCheckedPlace()}
                         icon={<Icon28SyncOutline width={24} height={24} color={WHITE}/>}
-                        style={"checkAvailabilityBtn check__availability"}
+                        style={"checkAvailabilityBtn check__availability pr_pl_5"}
                         name={"Проверить наличие мест"}
                         styleText={"text__content__white__16"}
                     />
@@ -199,9 +248,9 @@ export const CheckAvailability = () => {
                                     <div className="row__c__fs">
                                         <Icon24CalendarOutline color={BLACK}/>
                                         <span className="text__content__black__14" style={{marginLeft: "10px"}}>
-                                        {cityOrHotel.dataRange.checkIn} - {cityOrHotel.dataRange.checkOut} {cityOrHotel.dataRange.month}
+                                        {requestParameters.dataRange.checkIn} - {requestParameters.dataRange.checkOut} {requestParameters.dataRange.month}
                                             <span className="text__content__grey__14" style={{marginLeft: "5px"}}>
-                                            {cityOrHotel.dataRange.countNight} {wordDeclensionNight(cityOrHotel.dataRange.countNight)}
+                                            {requestParameters.dataRange.countNight} {wordDeclensionNight(requestParameters.dataRange.countNight)}
                                         </span>
                                 </span>
                                     </div>
@@ -210,7 +259,7 @@ export const CheckAvailability = () => {
                                 </span>
                                 </div>
                                 {
-                                    openDataRang  && (
+                                    openDataRang && (
                                         <div
                                             className="click-outside-modal-handler"
                                             onClick={handleClickOutsideDataRange}
@@ -227,8 +276,8 @@ export const CheckAvailability = () => {
                                 }
                                 <DataRange
                                     style={showCalendar ? "modal__list__search" : "modal__none"}
-                                    handle={() => handlerDate()}
-                                    page={"hotel"}
+                                    handle={(type, value) => dataSearchHandler(type, value)}
+                                    page={"search"}
                                 />
                             </div>
                         </div>
@@ -242,7 +291,7 @@ export const CheckAvailability = () => {
                                 <div className="row__c__fs">
                                     <Icon24CalendarOutline color={BLACK}/>
                                     <span className=" text__content__black__14" style={{marginLeft: "10px"}}>
-                                    {cityOrHotel.guest.adult + cityOrHotel.guest.child.length} {wordDeclension(cityOrHotel.guest.adult + cityOrHotel.guest.child.length)}
+                                    {requestParameters.guest.adult + requestParameters.guest.child.length} {wordDeclension(requestParameters.guest.adult + requestParameters.guest.child.length)}
                                 </span>
                                 </div>
                                 <span className={openGuest ? 'iconDate' : "iconBtn"}>
@@ -267,8 +316,8 @@ export const CheckAvailability = () => {
                             }
                             <GuestHotelNumber
                                 style={showGuest ? "modal__guest" : "modal__none"}
-                                guest={cityOrHotel.guest.adult}
-                                child={cityOrHotel.guest.child}
+                                guest={requestParameters.guest.adult}
+                                child={requestParameters.guest.child}
                                 handler={() => checkingHandler()}
                                 checkOld={checkOld}
                             />
@@ -304,9 +353,9 @@ export const CheckAvailability = () => {
                                     <div className="row__c__fs" style={{marginLeft: "10px"}}>
                                         <Icon24CalendarOutline color={BLACK}/>
                                         <span className="text__content__black__14" style={{marginLeft: "10px"}}>
-                                        {cityOrHotel.dataRange.checkIn} - {cityOrHotel.dataRange.checkOut} {cityOrHotel.dataRange.month}
+                                        {requestParameters.dataRange.checkIn} - {requestParameters.dataRange.checkOut} {requestParameters.dataRange.month}
                                             <span className="text__content__grey__14" style={{marginLeft: "5px"}}>
-                                            {cityOrHotel.dataRange.countNight} {wordDeclensionNight(cityOrHotel.dataRange.countNight)}
+                                            {requestParameters.dataRange.countNight} {wordDeclensionNight(requestParameters.dataRange.countNight)}
                                         </span>
                                 </span>
                                     </div>
@@ -315,7 +364,7 @@ export const CheckAvailability = () => {
                                 </span>
                                 </div>
                                 {
-                                    openDataRang  && (
+                                    openDataRang && (
                                         <div
                                             className="click-outside-modal-handler"
                                             onClick={handleClickOutsideDataRange}
@@ -332,8 +381,8 @@ export const CheckAvailability = () => {
                                 }
                                 <DataRange
                                     style={showCalendar ? "modal__list__search" : "modal__none"}
-                                    handle={() => handlerDate()}
-                                    page={"hotel"}
+                                    handle={(type, value) => dataSearchHandler(type, value)}
+                                    page={"search"}
                                 />
                             </div>
                         </div>
@@ -347,7 +396,7 @@ export const CheckAvailability = () => {
                                 <div className="row__c__fs" style={{marginLeft: "10px"}}>
                                     <Icon24CalendarOutline color={BLACK}/>
                                     <span className=" text__content__black__14" style={{marginLeft: "10px"}}>
-                                    {cityOrHotel.guest.adult + cityOrHotel.guest.child.length} {wordDeclension(cityOrHotel.guest.adult + cityOrHotel.guest.child.length)}
+                                    {requestParameters.guest.adult + requestParameters.guest.child.length} {wordDeclension(requestParameters.guest.adult + requestParameters.guest.child.length)}
                                 </span>
                                 </div>
                                 <span className={openGuest ? 'iconDate' : "iconBtn"}>
@@ -372,8 +421,8 @@ export const CheckAvailability = () => {
                             }
                             <GuestHotelNumber
                                 style={showGuest ? "modal__guest" : "modal__none"}
-                                guest={cityOrHotel.guest.adult}
-                                child={cityOrHotel.guest.child}
+                                guest={requestParameters.guest.adult}
+                                child={requestParameters.guest.child}
                                 handler={() => checkingHandler()}
                                 checkOld={checkOld}
                             />
@@ -409,9 +458,9 @@ export const CheckAvailability = () => {
                                     <div className="row__c__fs" style={{marginLeft: "10px"}}>
                                         <Icon24CalendarOutline color={BLACK}/>
                                         <span className="text__content__black__14" style={{marginLeft: "10px"}}>
-                                        {cityOrHotel.dataRange.checkIn} - {cityOrHotel.dataRange.checkOut} {cityOrHotel.dataRange.month}
+                                        {requestParameters.dataRange.checkIn} - {requestParameters.dataRange.checkOut} {requestParameters.dataRange.month}
                                             <span className="text__content__grey__14" style={{marginLeft: "5px"}}>
-                                            {cityOrHotel.dataRange.countNight} {wordDeclensionNight(cityOrHotel.dataRange.countNight)}
+                                            {requestParameters.dataRange.countNight} {wordDeclensionNight(requestParameters.dataRange.countNight)}
                                         </span>
                                 </span>
                                     </div>
@@ -420,7 +469,7 @@ export const CheckAvailability = () => {
                                 </span>
                                 </div>
                                 {
-                                    openDataRang  && (
+                                    openDataRang && (
                                         <div
                                             className="click-outside-modal-handler"
                                             onClick={handleClickOutsideDataRange}
@@ -437,8 +486,8 @@ export const CheckAvailability = () => {
                                 }
                                 <DataRange
                                     style={showCalendar ? "modal__list__search" : "modal__none"}
-                                    handle={() => handlerDate()}
-                                    page={"hotel"}
+                                    handle={() => (type, value) => dataSearchHandler(type, value)}
+                                    page={"search"}
                                 />
                             </div>
                         </div>
@@ -452,7 +501,7 @@ export const CheckAvailability = () => {
                                 <div className="row__c__fs" style={{marginLeft: "10px"}}>
                                     <Icon24CalendarOutline color={BLACK}/>
                                     <span className=" text__content__black__14" style={{marginLeft: "10px"}}>
-                                    {cityOrHotel.guest.adult + cityOrHotel.guest.child.length} {wordDeclension(cityOrHotel.guest.adult + cityOrHotel.guest.child.length)}
+                                    {requestParameters.guest.adult + requestParameters.guest.child.length} {wordDeclension(requestParameters.guest.adult + requestParameters.guest.child.length)}
                                 </span>
                                 </div>
                                 <span className={openGuest ? 'iconDate' : "iconBtn"}>
@@ -477,8 +526,8 @@ export const CheckAvailability = () => {
                             }
                             <GuestHotelNumber
                                 style={showGuest ? "modal__guest" : "modal__none"}
-                                guest={cityOrHotel.guest.adult}
-                                child={cityOrHotel.guest.child}
+                                guest={requestParameters.guest.adult}
+                                child={requestParameters.guest.child}
                                 handler={() => checkingHandler()}
                                 checkOld={checkOld}
                             />
@@ -527,11 +576,12 @@ export const CheckAvailability = () => {
                                             style={{cursor: "pointer"}}>
                                             <div className="row__c__fs" style={{marginLeft: "10px"}}>
                                                 <Icon24CalendarOutline color={BLACK}/>
-                                                <span className="text__content__black__14" style={{marginLeft: "10px"}}>
-                                        {cityOrHotel.dataRange.checkIn} - {cityOrHotel.dataRange.checkOut} {cityOrHotel.dataRange.month}
+                                                <span className="text__content__black__14"
+                                                      style={{marginLeft: "10px"}}>
+                                        {requestParameters.dataRange.checkIn} - {requestParameters.dataRange.checkOut} {requestParameters.dataRange.month}
                                                     <span className="text__content__grey__14"
                                                           style={{marginLeft: "5px"}}>
-                                            {cityOrHotel.dataRange.countNight} {wordDeclensionNight(cityOrHotel.dataRange.countNight)}
+                                            {requestParameters.dataRange.countNight} {wordDeclensionNight(requestParameters.dataRange.countNight)}
                                         </span>
                                 </span>
                                             </div>
@@ -540,7 +590,7 @@ export const CheckAvailability = () => {
                                 </span>
                                         </div>
                                         {
-                                            openDataRang  && (
+                                            openDataRang && (
                                                 <div
                                                     className="click-outside-modal-handler"
                                                     onClick={handleClickOutsideDataRange}
@@ -557,8 +607,8 @@ export const CheckAvailability = () => {
                                         }
                                         <DataRange
                                             style={showCalendar ? "modal__list__search" : "modal__none"}
-                                            handle={() => handlerDate()}
-                                            page={"hotel"}
+                                            handle={() => (type, value) => dataSearchHandler(type, value)}
+                                            page={"search"}
                                         />
                                     </div>
                                 </div>
@@ -571,8 +621,9 @@ export const CheckAvailability = () => {
                                          style={{cursor: "pointer"}}>
                                         <div className="row__c__fs" style={{marginLeft: "10px"}}>
                                             <Icon24CalendarOutline color={BLACK}/>
-                                            <span className=" text__content__black__14" style={{marginLeft: "10px"}}>
-                                    {cityOrHotel.guest.adult + cityOrHotel.guest.child.length} {wordDeclension(cityOrHotel.guest.adult + cityOrHotel.guest.child.length)}
+                                            <span className=" text__content__black__14"
+                                                  style={{marginLeft: "10px"}}>
+                                    {requestParameters.guest.adult + requestParameters.guest.child.length} {wordDeclension(requestParameters.guest.adult + requestParameters.guest.child.length)}
                                 </span>
                                         </div>
                                         <span className={openGuest ? 'iconDate' : "iconBtn"}>
@@ -597,8 +648,8 @@ export const CheckAvailability = () => {
                                     }
                                     <GuestHotelNumber
                                         style={showGuest ? "modal__guest" : "modal__none"}
-                                        guest={cityOrHotel.guest.adult}
-                                        child={cityOrHotel.guest.child}
+                                        guest={requestParameters.guest.adult}
+                                        child={requestParameters.guest.child}
                                         handler={() => checkingHandler()}
                                         checkOld={checkOld}
                                     />
@@ -625,9 +676,9 @@ export const CheckAvailability = () => {
                     </div>
                     <div className="column__fs__c" onClick={() => toggleDrawer()} style={{width: "200px"}}>
                         <span className="text__content__black__b__16"
-                              style={{marginBottom: "5px"}}>  {cityOrHotel.dataRange.checkIn} - {cityOrHotel.dataRange.checkOut} {cityOrHotel.dataRange.month}</span>
+                              style={{marginBottom: "5px"}}>  {requestParameters.dataRange.checkIn} - {requestParameters.dataRange.checkOut} {requestParameters.dataRange.month}</span>
                         <span
-                            className="text__content__grey__12"> {cityOrHotel.guest.adult + cityOrHotel.guest.child.length} {wordDeclension(cityOrHotel.guest.adult + cityOrHotel.guest.child.length)}</span>
+                            className="text__content__grey__12"> {requestParameters.guest.adult + requestParameters.guest.child.length} {wordDeclension(requestParameters.guest.adult + requestParameters.guest.child.length)}</span>
                     </div>
                 </div>
             </div>

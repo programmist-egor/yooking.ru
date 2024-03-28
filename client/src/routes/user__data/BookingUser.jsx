@@ -2,6 +2,8 @@ import {Header} from "../../components/header/Header";
 import {Footer} from "../../components/footer/Footer";
 import FinishedBooking from "../../components/modals/FinishedBooking";
 import {ListBookingUser} from "../../components/blocks/ListBookingUser";
+import {MoreNumber} from "../../components/modals/MoreNumber";
+import React from "react";
 
 
 export const BookingUser = () => {
@@ -18,6 +20,7 @@ export const BookingUser = () => {
             <div className="footer">
                 <Footer/>
             </div>
+            <MoreNumber type={"booking"}/>
         </div>
     )
 }

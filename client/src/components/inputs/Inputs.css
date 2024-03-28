@@ -86,13 +86,26 @@
 .inputEditUser {
     min-width: 260px;
     max-width: 300px;
-    height: 35px;
+    height: 30px;
     border-radius: var(--border-radius-5);
     border: 1px solid var(--grey);
     display: flex;
     background: var(--white);
     padding-left: 10px;
+    /*cursor: pointer;*/
+}
+.inputCodePhone {
+    width: 100px;
+    height: 35px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--border-radius-5);
+    border: 1px solid var(--grey);
+    display: flex;
+    background: var(--white);
     margin: 10px;
+    text-align: center;
     /*cursor: pointer;*/
 }
 .inputCheckAvailabilityPeople {

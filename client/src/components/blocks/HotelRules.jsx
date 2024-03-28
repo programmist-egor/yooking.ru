@@ -1,20 +1,28 @@
 import {BLACK, GREY, GREY_BLACK, RED, WHITE} from "../../theme/colors";
 import Drawer from "react-modern-drawer";
-import {Icon24BriefcaseOutline, Icon24ErrorCircleOutline, Icon24ChevronDown, Icon24Cancel} from "@vkontakte/icons";
-import {DataRange} from "../search/DataRange";
-import {GuestHotel} from "../search/GuestHotel";
+import {Icon24ErrorCircleOutline, Icon24Cancel} from "@vkontakte/icons";
 import {ButtonIcon} from "../buttons/ButtonIcon";
-import {dataHotelUserHandler} from "../../store/ClientData";
-import InputMask from "react-input-mask";
-import MobileCode from "../modals/MobileCode";
-import React from "react";
+import React, {useEffect} from "react";
+import {optionCheckBoxPropertyRules} from "../../utils/varible";
 
 export const HotelRules = ({dataHotelNumber}) => {
     const [isOpenBooking, setIsOpenBooking] = React.useState(false)
+    const [filterRules, setFilterRules] = React.useState([])
 
     const toggleDrawerBooking = () => {
         setIsOpenBooking((prevState) => !prevState)
     }
+
+    useEffect(() => {
+        if (dataHotelNumber !== null) {
+            const newFilterRules = dataHotelNumber.propertyRules.map(rule => {
+                return optionCheckBoxPropertyRules.find(item => item.value === rule);
+            }).filter(Boolean); // Фильтруем, чтобы удалить пустые значения
+            console.log(newFilterRules);
+            setFilterRules(newFilterRules);
+        }
+    }, [dataHotelNumber, optionCheckBoxPropertyRules]);
+
     return (
         <div>
             <div className="column__fs hotel__rules">
@@ -23,46 +31,18 @@ export const HotelRules = ({dataHotelNumber}) => {
             </span>
                 <div className="row__fs__sb" style={{flexWrap: "wrap"}}>
                     <div className="column__fs__c">
-                        <div className="row__c__fs" style={{marginBottom: "15px"}}>
-                        <span className="material-symbols-outlined">
-                            escalator_warning
-                        </span>
-                            <span className="text__content__black__16" style={{marginLeft: "15px"}}>
-                            Можно с детьми любого возраста
-                        </span>
-                        </div>
-                        <div className="row__c__fs" style={{marginBottom: "15px"}}>
-                        <span className="material-symbols-outlined">
-                            smoke_free
-                        </span>
-                            <span className="text__content__black__16" style={{marginLeft: "15px"}}>
-                            Курение запрещено
-                        </span>
-                        </div>
-                        <div className="row__c__fs" style={{marginBottom: "15px"}}>
-                        <span className="material-symbols-outlined">
-                            celebration
-                        </span>
-                            <span className="text__content__black__16" style={{marginLeft: "15px"}}>
-                            Без вечеринок и мероприятий
-                        </span>
-                        </div>
-                        <div className="row__c__fs" style={{marginBottom: "15px"}}>
-                        <span className="material-symbols-outlined">
-                            pets
-                        </span>
-                            <span className="text__content__black__16" style={{marginLeft: "15px"}}>
-                            Можно с питомцами по согласованию с хозяином жилья
-                        </span>
-                        </div>
-                        <div className="row__c__fs" style={{marginBottom: "15px"}}>
-                        <span className="material-symbols-outlined">
-                            quick_reference
-                        </span>
-                            <span className="text__content__black__16" style={{marginLeft: "15px"}}>
-                            Владелец предоставляет отчетные документы о проживании по согласованию
-                        </span>
-                        </div>
+                        {
+                            filterRules.map(item => (
+                                <div className="row__c__fs" style={{marginBottom: "15px"}}>
+                                    <span className="material-symbols-outlined">
+                                        {item.icon.replace(/"/g, '')}
+                                    </span>
+                                    <span className="text__content__black__16" style={{marginLeft: "15px"}}>
+                                        {item.name}
+                                    </span>
+                                </div>
+                            ))
+                        }
                     </div>
                     <div className="column__fs__c" style={{marginRight: "30px"}}>
                         <div className="row__fs__sb">
@@ -71,7 +51,7 @@ export const HotelRules = ({dataHotelNumber}) => {
                                 Заезд
                             </span>
                                 <span className="text__content__black__16" style={{marginTop: "10px"}}>
-                                после {dataHotelNumber.checkIn}
+                                до {dataHotelNumber?.checkIn}
                             </span>
                             </div>
                             <div className="column__fs__c">
@@ -79,7 +59,7 @@ export const HotelRules = ({dataHotelNumber}) => {
                                 Отезд
                             </span>
                                 <span className="text__content__black__16" style={{marginTop: "10px"}}>
-                                после {dataHotelNumber.checkOut}
+                                после {dataHotelNumber?.checkOut}
                             </span>
                             </div>
                         </div>
@@ -87,7 +67,7 @@ export const HotelRules = ({dataHotelNumber}) => {
                             Минимальный срок проживания
                         </span>
                         <span className="text__content__black__16" style={{marginTop: "10px"}}>
-                            от {dataHotelNumber.minimumNightStay} суток
+                            от {dataHotelNumber?.minimumNightStay} суток
                         </span>
                     </div>
                 </div>
@@ -115,7 +95,7 @@ export const HotelRules = ({dataHotelNumber}) => {
                                                 Заезд
                                             </span>
                                     <span className="text__content__black__16" style={{marginTop: "10px"}}>
-                                                после {dataHotelNumber.checkIn}
+                                                до {dataHotelNumber?.checkIn}
                                             </span>
                                 </div>
                                 <div className="column__fs__c">
@@ -123,56 +103,29 @@ export const HotelRules = ({dataHotelNumber}) => {
                                                 Отезд
                                             </span>
                                     <span className="text__content__black__16" style={{marginTop: "10px"}}>
-                                                после {dataHotelNumber.checkOut}
+                                                после {dataHotelNumber?.checkOut}
                                             </span>
                                 </div>
                             </div>
                             <span className="text__content__black__b__16" style={{marginTop: "20px"}}>
                                                 Минимальный срок проживания
                                             </span>
-                            <span className="text__content__black__16" style={{marginTop: "10px", marginBottom: "10px"}}>
-                                                от {dataHotelNumber.minimumNightStay} суток
+                            <span className="text__content__black__16"
+                                  style={{marginTop: "10px", marginBottom: "10px"}}>
+                                                от {dataHotelNumber?.minimumNightStay} суток
                                             </span>
-                            <div className="row__c__fs" style={{marginBottom: "15px"}}>
+                            {
+                                filterRules.map(item => (
+                                    <div className="row__c__fs" style={{marginBottom: "15px"}}>
                                     <span className="material-symbols-outlined">
-                                        escalator_warning
+                                        {item.icon.replace(/"/g, '')}
                                     </span>
-                                <span className="text__content__black__16" style={{marginLeft: "15px"}}>
-                                        Можно с детьми любого возраста
+                                        <span className="text__content__black__16" style={{marginLeft: "15px"}}>
+                                        {item.name}
                                     </span>
-                            </div>
-                            <div className="row__c__fs" style={{marginBottom: "15px"}}>
-                                    <span className="material-symbols-outlined">
-                                        smoke_free
-                                    </span>
-                                <span className="text__content__black__16" style={{marginLeft: "15px"}}>
-                                        Курение запрещено
-                                        </span>
-                            </div>
-                            <div className="row__c__fs" style={{marginBottom: "15px"}}>
-                                        <span className="material-symbols-outlined">
-                                            celebration
-                                        </span>
-                                <span className="text__content__black__16" style={{marginLeft: "15px"}}>
-                                            Без вечеринок и мероприятий
-                                        </span>
-                            </div>
-                            <div className="row__c__fs" style={{marginBottom: "15px"}}>
-                                        <span className="material-symbols-outlined">
-                                            pets
-                                        </span>
-                                <span className="text__content__black__16" style={{marginLeft: "15px"}}>
-                                            Можно с питомцами по согласованию с хозяином жилья
-                                        </span>
-                            </div>
-                            <div className="row__c__fs" style={{marginBottom: "15px"}}>
-                                        <span className="material-symbols-outlined">
-                                            quick_reference
-                                        </span>
-                                <span className="text__content__black__16" style={{marginLeft: "15px"}}>
-                                            Владелец предоставляет отчетные документы о проживании по согласованию
-                                        </span>
-                            </div>
+                                    </div>
+                                ))
+                            }
                         </div>
                     </div>
                 </Drawer>

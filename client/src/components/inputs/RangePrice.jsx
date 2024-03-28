@@ -6,7 +6,6 @@ import {
     countHandler,
     countOtherSortHandler,
     rangeValueEndHandler,
-    rangeValueHandler,
     rangeValueStartHandler
 } from "../../store/Filter";
 import {GREY_BLACK} from "../../theme/colors";
@@ -14,10 +13,13 @@ import {
     countPageHandler,
     dataHotelsListHandler, loadingHotelListHandler,
     loadingListHandler,
-    loadingMapHandler,
-    pageSwitchingHandler, showHotelMapHandler
+    loadingMapHandler, objectListHandler,
+    pageSwitchingHandler, setFilteredHotels, showHotelMapHandler
 } from "../../store/HotelsList";
-import {pageDistribution} from "../utils/search-hotels";
+import {pageDistribution} from "../../utils/search-hotels";
+import NumberService from "../../services/number.service";
+import {parseJSONPropertiesInArray} from "../../utils/json-parse-object";
+import CategoryService from "../../services/category.service";
 
 const theme = createTheme({
     palette: {
@@ -27,59 +29,11 @@ const theme = createTheme({
     },
 });
 
-export const RangePrice = () => {
+export const RangePrice = ({handlerFocus}) => {
     const dispatch = useDispatch()
     const rangeValueStart = useSelector(state => state.filter.rangeValueStart)
     const rangeValueEnd = useSelector(state => state.filter.rangeValueEnd)
-    const dataHotelsList = useSelector(state => state.hotels_list.dataHotelsList)
-    const cityOrHotel = useSelector(state => state.search.cityOrHotel)
-    const copyDataHotelsList = useSelector(state => state.hotels_list.copyDataHotelsList)
 
-    const updateHoleList = () => {
-        //Возврат на первую страницу
-        dispatch(pageSwitchingHandler(0))
-        //Лоадеры
-        dispatch(loadingHotelListHandler(true))
-        setTimeout(() => {
-            dispatch(loadingHotelListHandler(false))
-        }, 300)
-        dispatch(loadingMapHandler(true))
-        setTimeout(() => {
-            dispatch(loadingMapHandler(false))
-        }, 300)
-        // Обновление местоположения
-        dispatch(showHotelMapHandler(
-            {
-                lat: cityOrHotel.hotelAndCity.city.location.lat,
-                lon: cityOrHotel.hotelAndCity.city.location.lon,
-                zoom: 13
-            }))
-    }
-    const handlerFocus = (event) => {
-        if (event.currentTarget) {
-            //Базовые данные
-            const copyBaseData = []
-            copyDataHotelsList.map(item => {
-                item.hotels.map(hotels => {
-                    copyBaseData.push(hotels)
-                })
-            })
-
-            const newArray = copyBaseData.filter(price => price.last_price_info.price >= rangeValueStart && price.last_price_info.price <= rangeValueEnd)
-            console.log("Массив отфилтрованный по цене", newArray)
-
-            //Распределение по страницам
-            const data = pageDistribution(newArray)
-
-
-            dispatch(countPageHandler(data.countPage + 1))
-            //Обновление количества отелей в списке параметров
-            dispatch(countOtherSortHandler(data.list))
-            dispatch(dataHotelsListHandler(data.list))
-            updateHoleList()
-        }
-
-    }
 
 
     const handleChange = (event, newValue) => {

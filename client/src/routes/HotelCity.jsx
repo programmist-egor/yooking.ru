@@ -83,8 +83,8 @@ export const HotelCity = () => {
         console.log("// Обновление местоположения");
         dispatch(showHotelMapHandler(
             {
-                lat: cityOrHotel.hotelAndCity.city.location.lat,
-                lon: cityOrHotel.hotelAndCity.city.location.lon,
+                lat: cityOrHotel.city.location.lat,
+                lon: cityOrHotel.city.location.lon,
                 zoom: 13
             }))
     }
@@ -207,75 +207,75 @@ export const HotelCity = () => {
 
 
                             <div className="column" style={{overflowY: "scroll",}}>
-                                {!loadingHotelList ?
-                                    filteredHotels !== null ?
-                                        filteredHotels.length !== 0 || filteredHotels[0].hotels.length !== 0 ?
-                                            filteredHotels[itemPage].hotels.map(item => {
-                                                // item.metro.length === 0 ? dispatch(showMetroHandler(false)) : dispatch(showMetroHandler(true))
-                                                return (
-                                                    <HotelCard
-                                                        toggleDrawerMap={toggleDrawerMap}
-                                                        key={item.hotelId}
-                                                        hotelId={item.hotelId}
-                                                        name={item.name}
-                                                        countReviews={item.countReviews}
-                                                        nearMetro={item.metro}
-                                                        photoHotel={item.photos}
-                                                        lastPriceInfo={item.last_price_info}
-                                                        address={item.address}
-                                                        distance={item.distance}
-                                                        rating={item.rating}
-                                                        favorite={item.favorite}
-                                                        location={item.location}
-                                                        itemPage={itemPage}
-                                                        item={item}
-                                                        hotelCity={false}
-                                                    />
-                                                )
-                                            })
-                                            :
-                                            <>
-                                                <div className="row__c__c">
-                                                    <h2 style={{color: GREY}}>Ничего не найдено</h2>
-                                                </div>
-                                            </>
-                                        :
-                                        dataHotelsList.length !== 0 || dataHotelsList[0].hotels.length !== 0 ?
-                                            dataHotelsList[itemPage].hotels.map(item => {
-                                                // item.metro.length === 0 ? dispatch(showMetroHandler(false)) : dispatch(showMetroHandler(true))
-                                                return (
-                                                    <HotelCard
-                                                        toggleDrawerMap={toggleDrawerMap}
-                                                        key={item.hotelId}
-                                                        hotelId={item.hotelId}
-                                                        name={item.name}
-                                                        countReviews={item.countReviews}
-                                                        nearMetro={item.metro}
-                                                        photoHotel={item.photos}
-                                                        lastPriceInfo={item.last_price_info}
-                                                        address={item.address}
-                                                        distance={item.distance}
-                                                        rating={item.rating}
-                                                        favorite={item.favorite}
-                                                        location={item.location}
-                                                        itemPage={itemPage}
-                                                        item={item}
-                                                        hotelCity={false}
-                                                    />
-                                                )
-                                            })
-                                            :
-                                            <>
-                                                <div className="row__c__c">
-                                                    <h2 style={{color: GREY}}>Ничего не найдено</h2>
-                                                </div>
-                                            </>
+                                {/*{!loadingHotelList ?*/}
+                                {/*    filteredHotels !== null ?*/}
+                                {/*        filteredHotels.length !== 0 || filteredHotels[0].hotels.length !== 0 ?*/}
+                                {/*            filteredHotels[itemPage].hotels.map(item => {*/}
+                                {/*                // item.metro.length === 0 ? dispatch(showMetroHandler(false)) : dispatch(showMetroHandler(true))*/}
+                                {/*                return (*/}
+                                {/*                    <HotelCard*/}
+                                {/*                        toggleDrawerMap={toggleDrawerMap}*/}
+                                {/*                        key={item.hotelId}*/}
+                                {/*                        hotelId={item.hotelId}*/}
+                                {/*                        name={item.name}*/}
+                                {/*                        countReviews={item.countReviews}*/}
+                                {/*                        nearMetro={item.metro}*/}
+                                {/*                        photoHotel={item.photos}*/}
+                                {/*                        lastPriceInfo={item.last_price_info}*/}
+                                {/*                        address={item.address}*/}
+                                {/*                        distance={item.distance}*/}
+                                {/*                        rating={item.rating}*/}
+                                {/*                        favorite={item.favorite}*/}
+                                {/*                        location={item.location}*/}
+                                {/*                        itemPage={itemPage}*/}
+                                {/*                        item={item}*/}
+                                {/*                        hotelCity={false}*/}
+                                {/*                    />*/}
+                                {/*                )*/}
+                                {/*            })*/}
+                                {/*            :*/}
+                                {/*            <>*/}
+                                {/*                <div className="row__c__c">*/}
+                                {/*                    <h2 style={{color: GREY}}>Ничего не найдено</h2>*/}
+                                {/*                </div>*/}
+                                {/*            </>*/}
+                                {/*        :*/}
+                                {/*        dataHotelsList.length !== 0 || dataHotelsList[0].hotels.length !== 0 ?*/}
+                                {/*            dataHotelsList[itemPage].hotels.map(item => {*/}
+                                {/*                // item.metro.length === 0 ? dispatch(showMetroHandler(false)) : dispatch(showMetroHandler(true))*/}
+                                {/*                return (*/}
+                                {/*                    <HotelCard*/}
+                                {/*                        toggleDrawerMap={toggleDrawerMap}*/}
+                                {/*                        key={item.hotelId}*/}
+                                {/*                        hotelId={item.hotelId}*/}
+                                {/*                        name={item.name}*/}
+                                {/*                        countReviews={item.countReviews}*/}
+                                {/*                        nearMetro={item.metro}*/}
+                                {/*                        photoHotel={item.photos}*/}
+                                {/*                        lastPriceInfo={item.last_price_info}*/}
+                                {/*                        address={item.address}*/}
+                                {/*                        distance={item.distance}*/}
+                                {/*                        rating={item.rating}*/}
+                                {/*                        favorite={item.favorite}*/}
+                                {/*                        location={item.location}*/}
+                                {/*                        itemPage={itemPage}*/}
+                                {/*                        item={item}*/}
+                                {/*                        hotelCity={false}*/}
+                                {/*                    />*/}
+                                {/*                )*/}
+                                {/*            })*/}
+                                {/*            :*/}
+                                {/*            <>*/}
+                                {/*                <div className="row__c__c">*/}
+                                {/*                    <h2 style={{color: GREY}}>Ничего не найдено</h2>*/}
+                                {/*                </div>*/}
+                                {/*            </>*/}
 
-                                    :
-                                    <div className="column__c__c">
-                                        <Spinner/>
-                                    </div>
-                                }
+                                {/*    :*/}
+                                {/*    <div className="column__c__c">*/}
+                                {/*        <Spinner/>*/}
+                                {/*    </div>*/}
+                                {/*}*/}
                             </div>
                             <ButtonPage/>
                         </div>

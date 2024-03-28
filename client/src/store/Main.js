@@ -8,6 +8,7 @@ const main = createSlice({
         modalSort: false,
         hotelCityId: null,
         loading: true,
+        loadingUserMenu: false,
         countHotels: 0,
         langChoose: {id: 1, name: "Русский", img: ru},
         followUs: "",
@@ -31,6 +32,9 @@ const main = createSlice({
         handlerLoadingStartPage(state, action) {
             state.loading  = action.payload
         },
+        handlerLoadingUserMenu(state, action) {
+            state.loadingUserMenu  = action.payload
+        },
         handlerCountHotels(state, action) {
             state.countHotels = state.countHotels = action.payload
         },
@@ -49,6 +53,7 @@ const main = createSlice({
 export const {
     modalLangHandler,
     handlerLoadingStartPage,
+    handlerLoadingUserMenu,
     modalMenuHandler,
     handlerHotelCityId,
     modalSortHandler,

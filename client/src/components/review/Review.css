@@ -1,0 +1,24 @@
+.header__review {
+    background: var(--grey-black);
+    height: 40px;
+    border-radius: 10px 10px  0 0;
+}
+.review__block{
+    height: auto;
+    background: var(--black);
+    border-radius:   0 0 10px 10px;
+}
+.block__review__info{
+    background: var(--white);
+    padding-left: 20px;
+    padding-bottom: 30px;
+    border-radius:   0 0 10px 0 ;
+}
+.block__booking__info {
+    background: var(--black);
+    padding-top: 30px;
+    padding-bottom: 30px;
+    padding-left: 15px;
+    padding-right: 15px;
+
+}

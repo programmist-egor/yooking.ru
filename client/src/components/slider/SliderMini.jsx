@@ -1,105 +1,99 @@
+import React, {useState, useEffect} from 'react';
 import {
     Icon24BrowserBack,
     Icon24BrowserForward,
     Icon24LikeOutline,
+    Icon24Like,
     Icon24RadioOn,
-    Icon24RadioOff,
-    Icon24Like
+    Icon24RadioOff
 } from '@vkontakte/icons';
-import no_photo from "../../img/no_photo.jpg"
-import {WHITE} from "../../theme/colors";
-import {useEffect, useState} from "react";
-import {addFavoriteHandler} from "../../store/HotelsList";
-import {useDispatch, useSelector} from "react-redux";
-import {addFavoriteUserDataHandler} from "../../store/ClientData";
-import {useNavigate} from "react-router-dom";
-import getCookie from "../hooks/getCookie";
-import {ref, update} from "firebase/database";
-import {database} from "../../firebase";
+import no_photo from '../../img/no_photo.jpg';
+import {WHITE} from '../../theme/colors';
+import {useDispatch, useSelector} from 'react-redux';
+import {useNavigate} from 'react-router-dom';
+import FavoriteService from "../../services/favorite.service";
+import {v4 as uuidv4} from "uuid";
+import {getCurrentDate} from "../../utils/createDataNow";
 
-
-export const SliderMini = ({photoHotel, hotelId, favorite, width, height, borderRadius, minWidth, item}) => {
-    const slideItem = [{id: 0, active: false}]
+export const SliderMini = React.memo(({photoHotel, hotelId, width, height, borderRadius, minWidth}) => {
+    const [count, setCount] = useState(0);
+    const [favorite, setFavorite] = useState([]);
+    const userId = useSelector((state) => state.auth.userId);
+    const [arrayImage, setArrayImage] = useState([]);
+    const auth = useSelector(state => state.auth.isAuth);
+    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const [count, setCount] = useState(0)
-    const [newArray, setNewArray] = useState([])
-    const arrayImage = []
-    const imageArray = photoHotel.map(item => item.url)
-    const dispatch = useDispatch()
-    const clientData = useSelector(state => state.client__data.dateClient)
-    const itemPage = useSelector(state => state.hotels_list.itemPage)
-    const favoriteUserData = useSelector(state => state.client__data.favoriteUserData)
-    if (photoHotel.length < 1) {
-        if (slideItem.length < 1) {
-            slideItem.push({id: 0, active: true})
-        }
-    }
 
-    if (photoHotel.length < 10 && photoHotel.length > 1) {
-        for (let i = 0; i < photoHotel.length; i++) {
-            arrayImage.push(imageArray[i])
-        }
-        for (let i = 1; i < photoHotel.length; i++) {
-            if (slideItem.length <= i) {
-                slideItem.push({id: i, active: false})
-            }
-        }
+    const loadFavorite = () => {
+        FavoriteService.getAllFavorites("hotels_map", userId)
+            .then(data => {
+                setFavorite(data)
+            })
     }
-    if (photoHotel.length > 10) {
-        for (let i = 0; i < 10; i++) {
-            arrayImage.push(imageArray[i])
-        }
-        for (let i = 1; i < 10; i++) {
-            if (slideItem.length <= i) {
-                slideItem.push({id: i, active: false})
+    useEffect(() => {
+        if (auth) {
+            if (favorite.length === 0) {
+                loadFavorite()
             }
+        } else {
+            console.log("Не авторизован!");
         }
-    }
+    }, [])
+
+
+
 
     useEffect(() => {
-        //preloading image
-
-        arrayImage.forEach((face) => {
-            const img = new Image();
-            img.src = face;
-        });
-
-
-    }, []);
-
-    slideItem.map(item => {
-        if (item.id === count) {
-            item.active = true
+        if (photoHotel) {
+            setArrayImage(photoHotel.slice(0, 10).map(item => item.url));
         }
-        return item
-    })
+    }, [photoHotel]);
 
-
-    const handlerForward = (i) => {
-        if (count >= arrayImage.length - 1 && count <= 10) {
-            setCount(0)
+    const addFavorite = () => {
+        if (auth) {
+            const isFavorite = favorite.some(fav => +fav.hotelId === hotelId);
+            if (!isFavorite) {
+                const dataFavorite = {
+                    id: uuidv4(),
+                    userId: userId,
+                    hotelId: hotelId,
+                    date: getCurrentDate()
+                };
+                setFavorite(prevFavorite => [...prevFavorite, dataFavorite]); // Добавление нового элемента в массив favorite
+                FavoriteService.createFavorite("hotels_map", dataFavorite)
+                    .then(data => console.log("Add favorite", data))
+                    .catch(e => console.log(e))
+                    .finally(() => loadFavorite());
+            }
         } else {
-            setCount(count + i)
+            navigate('/api/login');
         }
-    }
-    const handlerBack = (i) => {
-        if (count <= 0) {
-            setCount(arrayImage.length - 1)
+    };
+
+    const removeFavorite = () => {
+
+        if (auth) {
+            const isFavorite = favorite.some(fav => +fav.hotelId === hotelId);
+            if (isFavorite) {
+                const deleteFavorite = favorite.filter(fav => +fav.hotelId !== hotelId)
+                setFavorite(deleteFavorite)
+                FavoriteService.deleteFavorite("hotels_map", hotelId)
+                    .then(data => console.log("Del favorite", data))
+                    .catch(e => console.log(e))
+                    .finally(() => loadFavorite())
+            }
         } else {
-            setCount(count - i)
+            navigate('/api/login');
         }
-    }
+    };
 
-    const addDelFavorite = () => {
-        if (clientData.auth) {
+    const handlerForward = () => {
+        setCount(prevCount => (prevCount + 1) % arrayImage.length);
+    };
 
-            dispatch(addFavoriteHandler({id: hotelId, numberPage: itemPage}))
-            dispatch(addFavoriteUserDataHandler(item));
-        } else {
-            navigate("/Войти")
-        }
-
-    }
+    const handlerBack = () => {
+        setCount(prevCount => (prevCount - 1 + arrayImage.length) % arrayImage.length);
+    };
 
 
     return (
@@ -110,63 +104,42 @@ export const SliderMini = ({photoHotel, hotelId, favorite, width, height, border
                 minWidth: minWidth,
                 maxWidth: width,
                 borderRadius: borderRadius,
-                backgroundImage: photoHotel.length === 0 ? `url(${no_photo})` : `url(${arrayImage[count]})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-
+                backgroundImage: arrayImage.length === 0 ? `url(${no_photo})` : `url(${arrayImage[count]})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
             }}
         >
             <div className="row__c__fe">
-                <span className="cardControlSlider"
-                      onClick={() => addDelFavorite()}>
-                    {favorite ? <Icon24Like width={35} height={35} color={WHITE}/> :
-                        <Icon24LikeOutline width={35} height={35} color={WHITE}/>}
-                </span>
+                {favorite.some(fav => +fav.hotelId === hotelId) ? (
+                    <div className="cardControlSlider" onClick={() => removeFavorite()}>
+        <Icon24Like width={35} height={35} color={WHITE}/>
+    </div>
+                ) : (
+                    <div className="cardControlSlider" onClick={() =>  addFavorite() }>
+        <Icon24LikeOutline width={35} height={35} color={WHITE}/>
+    </div>
+                )}
             </div>
             <div className="row__sb__c">
-                <span
-                    className="cardControlSlider"
-                    onClick={() => handlerBack(1)}
-                >
+                <span className="cardControlSlider" onClick={handlerBack}>
                     <Icon24BrowserBack color={WHITE}/>
                 </span>
-                <span
-                    className="cardControlSlider"
-                    onClick={() => handlerForward(1)}
-                >
+                <span className="cardControlSlider" onClick={handlerForward}>
                     <Icon24BrowserForward color={WHITE}/>
                 </span>
             </div>
-
             <span className="row__c__c cardControlSlider">
-                {
-                    slideItem.map(item => (
-                        item.active ?
-                            <span
-                                key={item.id}
-                                style={{
-                                    padding: "5px"
-                                }}>
-                            <Icon24RadioOn
-                                width={9}
-                                height={9}
-                                color={WHITE}
-                            />
-                        </span>
-                            :
-                            <span
-                                key={item.id}
-                                style={{
-                                    padding: "2.5px"
-                                }}>
-                            <Icon24RadioOff
-                                width={9}
-                                height={9}
-                                color={WHITE}
-                            />
-                        </span>
-                    ))}
-                </span>
+                {arrayImage.map((url, index) => (
+                    <span key={index} style={{padding: index === count ? '5px' : '2.5px'}}>
+                        {index === count ? (
+                            <Icon24RadioOn width={9} height={9} color={WHITE}/>
+                        ) : (
+                            <Icon24RadioOff width={9} height={9} color={WHITE}/>
+                        )}
+                    </span>
+                ))}
+            </span>
         </div>
-    )
-}
+    );
+});
+

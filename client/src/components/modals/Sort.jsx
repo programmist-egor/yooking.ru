@@ -29,8 +29,8 @@ export const Sort = ({style, handleSort, Mobile0660}) => {
         //Обновление местоположения
         dispatch(showHotelMapHandler(
             {
-                lat: cityOrHotel.hotelAndCity.city.location.lat,
-                lon: cityOrHotel.hotelAndCity.city.location.lon,
+                lat: cityOrHotel.city.location.lat,
+                lon: cityOrHotel.city.location.lon,
                 zoom: 13
             }))
     }

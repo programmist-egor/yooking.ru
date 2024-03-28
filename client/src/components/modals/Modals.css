@@ -123,6 +123,41 @@
     margin-top: 20px;
     padding-left: 10px;
 }
+.inputRegObj {
+    height: 30px;
+    width: 280px;
+    border-radius: var(--border-radius-5);
+    border: 1px solid var(--grey-input);
+    display: flex;
+    background: var(--white);
+    padding-left: 10px;
+}
+.inputEditUser {
+    height: 30px;
+    border-radius: var(--border-radius-5);
+    border: 1px solid var(--grey-input);
+    display: flex;
+    background: var(--white);
+    padding-left: 10px;
+}
+.inputRegObjAddress {
+    height: 32px;
+    box-sizing: border-box;
+    border-radius: var(--border-radius-5);
+    border: 1px solid var(--grey-input);
+    background: var(--white);
+    padding-left: 10px;
+}
+.inputSearchInn {
+    height: 32px;
+    width: 340px;
+    margin-right: 50px;
+    box-sizing: border-box;
+    border-radius: var(--border-radius-5);
+    border: 1px solid var(--grey-input);
+    background: var(--white);
+    padding-left: 10px;
+}
 /*Tablet 661*/
 @media (min-width: 661px) {
     /*Компонент Sort*/

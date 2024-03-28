@@ -14,7 +14,37 @@
     flex-wrap: wrap;
     justify-content: center;
 }
+.custom__container {
+    margin-left: 3%;
+    margin-right: 3%;
+}
 
+.booking__user__block {
+    overflow-x: hidden;
+    padding-bottom: 100px;
+    overflow-y: hidden;
+}
+
+.custom__content {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.borderBottom {
+    padding-bottom: 5px;
+}
+.custom__title{
+    height: 30px;
+}
+.custom__title.large {
+    font-size: 1.5em;
+
+}
+
+.custom__scroll {
+    overflow-y: scroll;
+    height: 70vh;
+}
 .city-item {
     flex: 1 1 calc(100% / 6 - 20px);
     margin: 10px;
@@ -63,13 +93,39 @@
 
 .lineRating {
     height: 10px;
-    width: 210px;
     margin-left: 10px;
     margin-right: 10px;
-    background: var(--orange);
-    border-radius: var(--border-radius-5);
+    background: var(--grey-banner); /* Серый цвет фона */
+    border-radius: 5px;
+    position: relative;
 }
 
+.filledLine {
+    height: 100%;
+    background: var(--orange); /* Оранжевый цвет для заполнения */
+    border-radius: 5px;
+}
+.main__block {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.ratingItem {
+    width: 48%; /* Для двух колонок на больших экранах */
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) { /* Медиазапрос для маленьких экранов, например, мобильных устройств */
+    .main__block {
+        flex-direction: column; /* Переключение на одну колонку */
+        align-items: center;
+    }
+
+    .ratingItem {
+        width: 100%; /* Один параметр на всю ширину */
+    }
+}
 /*Яндекс карты*/
 .balloon__card {
     border-radius: 10px;
@@ -324,7 +380,6 @@
         background: var(--white);
         height: 100%;
         width: 768px;
-        margin-bottom: 20px;
     }
 }
 
@@ -713,12 +768,17 @@
         height: 100%;
         margin-bottom: 40px;
     }
-    .hotel__amenities {
+    .hotel__amen {
         background: var(--white);
         border-radius: 20px;
         padding: 20px;
-        height: 40vh;
         margin-bottom: 30px;
+    }
+    .hotel__amenities {
+        height: auto;
+        margin-bottom: 30px;
+        column-count: 3; /* Разбиваем на 3 колонки */
+        column-gap: 20px; /* Расстояние между колонками */
     }
 }
 
@@ -852,6 +912,9 @@
     }
     /*    Компонент HotelAmenities*/
     .hotel__amenities {
+        display: none;
+    }
+    .hotel__amen{
         display: none;
     }
 }

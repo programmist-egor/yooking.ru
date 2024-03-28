@@ -1,23 +1,32 @@
 import {ButtonIcon} from "../buttons/ButtonIcon";
 import {Icon24BriefcaseOutline, Icon24Cancel, Icon24ChevronDown, Icon24FlashOutline} from '@vkontakte/icons';
 import {GREY, GREY_BLACK, RED, WHITE} from "../../theme/colors";
-import {DataRange} from "../сalendar/DataRange";
+import {DataRange} from "../calendar/DataRange";
 import {useDispatch, useSelector} from "react-redux";
-import {wordDeclension, wordDeclensionNight} from "../utils/word-declensions";
-import {showCalendarHandler, showGuestHandler} from "../../store/Search";
+import {wordDeclension, wordDeclensionNight} from "../../utils/word-declensions";
+import {cityOrHotelHandler, handlerDataRange, showCalendarHandler, showGuestHandler} from "../../store/Search";
 import React, {useEffect, useState} from "react";
 import {GuestHotel} from "../search/GuestHotel";
-import InputPhone from "../forms/InputPhone";
 import InputMask from "react-input-mask";
-import {mobileCodeModalHandler} from "../../store/HotelItem";
 import MobileCode from "../modals/MobileCode";
 import {dateClientHandler, dataHotelUserHandler, phoneUserHandler, linkUserHandler} from "../../store/ClientData";
-import {getAuth, RecaptchaVerifier, signInWithPhoneNumber} from "firebase/auth";
 import Drawer from "react-modern-drawer";
+import {formatMoney} from "../../utils/formating-money";
+import {
+    dataNumbersListHandler,
+    loadingNumberListHandler, loadNumberListModalHandler,
+    objectListHandler,
+    openNumberListHandler
+} from "../../store/HotelsList";
+import {NumberList} from "../modals/NumberList";
+import NumberService from "../../services/number.service";
+import {parseJSONPropertiesInArray} from "../../utils/json-parse-object";
+
 
 export const QuickBooking = ({dataHotelNumber}) => {
     const dispatch = useDispatch()
-    const cityOrHotel = useSelector(state => state.search.cityOrHotel)
+    const hotelId = localStorage.getItem("hotelId")
+    const requestParameters = useSelector(state => state.search.cityOrHotel)
     const showCalendar = useSelector(state => state.search.showCalendar)
     const mobileCodeModal = useSelector(state => state.hotels_item.mobileCodeModal)
     const showGuest = useSelector(state => state.search.showGuest)
@@ -29,6 +38,33 @@ export const QuickBooking = ({dataHotelNumber}) => {
     const dataClient = useSelector(state => state.client__data.dateClient)
     const [verificationId, setVerificationId] = useState('');
     const [isOpenBooking, setIsOpenBooking] = React.useState(false)
+    const auth = useSelector(state => state.auth.isAuth);
+    const [averagePrice, setAveragePrice] = useState("");
+
+
+    useEffect(() => {
+        if (averagePrice === "") {
+            NumberService.getAllNumbers("hotel", hotelId)
+                .then(data => {
+                    const resultNumb = parseJSONPropertiesInArray(data)
+                    // Фильтрация номеров по hotelId
+                    const filteredPrices = resultNumb.filter(price => +price.hotelId === +hotelId);
+
+                    if (filteredPrices.length > 0) {
+                        const pricesAboveZero = filteredPrices.filter(price => price.priceBase > 0);
+                        if (pricesAboveZero.length > 0) {
+                            const minPrice = Math.min(...pricesAboveZero.map(price => price.priceBase));
+                            setAveragePrice(minPrice);
+                        } else {
+                            console.log("Все цены меньше или равны нулю");
+                        }
+                    } else {
+                        console.log("Нет данных для указанного hotelId");
+                    }
+                })
+        }
+    }, [])
+
 
     const toggleDrawerBooking = () => {
         setIsOpenBooking((prevState) => !prevState)
@@ -49,13 +85,19 @@ export const QuickBooking = ({dataHotelNumber}) => {
         setOpenDataRang(!openDataRang)
         dispatch(showCalendarHandler(!showCalendar))
     }
+    const dataSearchHandler = (type, value) => {
+        if (type === "DataRange") {
+            dispatch(handlerDataRange(value))
+            handlerDate()
+        }
+    }
 
     const handlerOpenGuest = () => {
         setGuest(!openGuest)
         dispatch(showGuestHandler(!showGuest))
     }
     const checkingHandler = () => {
-        if (cityOrHotel.guest.child.map(child => child.old === "Возраст")[0]) {
+        if (requestParameters.guest.child.map(child => child.old === "Возраст")[0]) {
             setCheckOld(true)
         } else {
             setGuest(!openGuest)
@@ -64,41 +106,47 @@ export const QuickBooking = ({dataHotelNumber}) => {
         }
     }
 
-
-    // Функция для форматирования числа в денежный формат
-    function formatMoney(number) {
-        // Преобразуем число в строку
-        let str = number.toString();
-        // Проверяем, есть ли десятичная точка или запятая
-        let dotIndex = str.indexOf(".");
-        let commaIndex = str.indexOf(",");
-        // Если есть точка, то разделяем строку на целую и дробную части
-        if (dotIndex > -1) {
-            let integerPart = str.slice(0, dotIndex);
-            let decimalPart = str.slice(dotIndex + 1);
-            // Добавляем пробелы между тысячами в целой части
-            integerPart = integerPart.replace(/\d{1,3}(?=(\d{3})+(?!\d))/g, "$& ");
-            // Возвращаем отформатированную строку
-            return integerPart + "," + decimalPart;
-        }
-        // Если есть запятая, то разделяем строку на целую и дробную части
-        else if (commaIndex > -1) {
-            let integerPart = str.slice(0, commaIndex);
-            let decimalPart = str.slice(commaIndex + 1);
-            // Добавляем пробелы между тысячами в целой части
-            integerPart = integerPart.replace(/\d{1,3}(?=(\d{3})+(?!\d))/g, "$& ");
-            // Возвращаем отформатированную строку
-            return integerPart + "." + decimalPart;
-        }
-        // Если нет точки и запятой, то просто добавляем пробелы между тысячами
-        else {
-            return str.replace(/\d{1,3}(?=(\d{3})+(?!\d))/g, "$& ");
-        }
+    const filterNumbers = async (array) => {
+        const checkIn = requestParameters.checkIn
+        const checkOut = requestParameters.checkOut
+        const guest = requestParameters.guest.adult + requestParameters.guest.child.length
+        const filteredNumbers = await array.filter(number => {
+            // Проверяем диапазон дат в bookingList
+            const isDateAvailable = number.bookingList.every(booking => {
+                return !(checkIn >= booking.checkIn && checkIn < booking.checkOut) &&
+                    !(checkOut > booking.checkIn && checkOut <= booking.checkOut);
+            });
+            // Проверяем количество гостей
+            const isGuestCountValid = number.guestCount.length >= guest;
+            return isDateAvailable && isGuestCountValid;
+        });
+        return filteredNumbers
     }
+
+    const openListNumber = () => {
+        dispatch(loadNumberListModalHandler(true))
+        NumberService.getAllNumbers("hotel", hotelId)
+            .then(data => {
+                const resultNumb = parseJSONPropertiesInArray(data)
+                filterNumbers(resultNumb)
+                    .then(data => {
+                        dispatch(dataNumbersListHandler(data))
+                    })
+                    .catch(e => console.log(e))
+                    .finally(() => {
+                        dispatch(loadNumberListModalHandler(false))
+                    })
+            })
+
+
+        // dispatch(loadingNumberListHandler(true))
+        dispatch(openNumberListHandler(true))
+    }
+
+    console.log("requestParameters", requestParameters);
 
     const regex = /^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/;
     const bookingHandler = (phone) => {
-
         if (regex.test(phone)) {
             // dispatch(mobileCodeModalHandler(true))
             dispatch(phoneUserHandler(phone))
@@ -109,8 +157,6 @@ export const QuickBooking = ({dataHotelNumber}) => {
             setCheckPhone(true)
         }
     }
-    console.log("MODULE", mobileCodeModal);
-    console.log("AUTH", dataClient.auth);
 
     return (
         <div>
@@ -124,11 +170,11 @@ export const QuickBooking = ({dataHotelNumber}) => {
                 <span
                     className="text__content__black__14"
                     style={{marginLeft: "10px"}}>
-                    {cityOrHotel.dataRange.checkIn} - {cityOrHotel.dataRange.checkOut} {cityOrHotel.dataRange.month}
+                    {requestParameters.dataRange.checkIn} - {requestParameters.dataRange.checkOut} {requestParameters.dataRange.month}
                     <span
                         className="text__content__grey__14"
                         style={{marginLeft: "5px"}}>
-                        {cityOrHotel.dataRange.countNight} {wordDeclensionNight(cityOrHotel.dataRange.countNight)}
+                        {requestParameters.dataRange.countNight} {wordDeclensionNight(requestParameters.dataRange.countNight)}
                     </span>
                 </span>
                             <span className={openDataRang ? 'iconDate' : "iconBtn"}>
@@ -136,7 +182,7 @@ export const QuickBooking = ({dataHotelNumber}) => {
                     </span>
                         </div>
                         {
-                            openDataRang  && (
+                            openDataRang && (
                                 <div
                                     className="click-outside-modal-handler"
                                     onClick={handleClickOutsideDataRange}
@@ -153,7 +199,7 @@ export const QuickBooking = ({dataHotelNumber}) => {
                         }
                         <DataRange
                             style={showCalendar ? "modal__list__search" : "modal__none"}
-                            handle={() => handlerDate()}
+                            handle={(type, value) => dataSearchHandler(type, value)}
                             page={"search"}
                         />
                     </div>
@@ -165,7 +211,7 @@ export const QuickBooking = ({dataHotelNumber}) => {
                             onClick={() => handlerOpenGuest()}
                             style={{cursor: "pointer",}}>
                         <span className="text__content__black__14" style={{marginLeft: "10px"}}>
-                            {cityOrHotel.guest.adult + cityOrHotel.guest.child.length} {wordDeclension(cityOrHotel.guest.adult + cityOrHotel.guest.child.length)}
+                            {requestParameters.guest.adult + requestParameters.guest.child.length} {wordDeclension(requestParameters.guest.adult + requestParameters.guest.child.length)}
                         </span>
                             <span className={openGuest ? 'iconDate' : "iconBtn"}>
                             <Icon24ChevronDown color={GREY}/>
@@ -189,8 +235,8 @@ export const QuickBooking = ({dataHotelNumber}) => {
                         }
                         <GuestHotel
                             style={showGuest ? "modal__guest" : "modal__none"}
-                            guest={cityOrHotel.guest.adult}
-                            child={cityOrHotel.guest.child}
+                            guest={requestParameters.guest.adult}
+                            child={requestParameters.guest.child}
                             handler={() => checkingHandler()}
                             checkOld={checkOld}
                         />
@@ -198,19 +244,18 @@ export const QuickBooking = ({dataHotelNumber}) => {
                 </div>
                 <div className="row__sb__c" style={{marginTop: "10px", marginBottom: "15px"}}>
                     <span
-                        className="text__content__black__b__16">Итого за {cityOrHotel.dataRange.countNight} суток</span>
+                        className="text__content__black__b__16">Итого за {requestParameters.dataRange.countNight} суток</span>
                     <span
-                        className="text__content__black__b__20">{formatMoney(dataHotelNumber.last_price_info.price_pn * cityOrHotel.dataRange.countNight)} ₽</span>
+                        className="text__content__black__b__20">{formatMoney(averagePrice * requestParameters.dataRange.countNight)} ₽</span>
                 </div>
-                {dataClient.auth === true ?
+                {auth ?
 
                     <ButtonIcon
-                        handler={() => dispatch(dataHotelUserHandler(dataHotelNumber))}
+                        handler={() => openListNumber()}
                         icon={<Icon24BriefcaseOutline color={WHITE}/>}
                         style={"bookBtn"}
                         name={"Забронировать"}
                         styleText={"text__content__white__16"}
-                        link={"/Личный_кабинет"}
                     />
                     :
                     <>
@@ -222,8 +267,8 @@ export const QuickBooking = ({dataHotelNumber}) => {
                                 value={phone}
                                 className="inputQuickBookingPhone text__content__black__16"
                                 onChange={(e) => setPhone(e.target.value)}
-                                mask="+7 (999) 999-99-99"
-                                placeholder="+7 (999) 999-99-99"
+                                mask="+79999999999"
+                                placeholder="+79999999999"
                             />
                         </div>
                         {checkPhone ?
@@ -247,7 +292,7 @@ export const QuickBooking = ({dataHotelNumber}) => {
                             style={"bookBtn"}
                             name={"Забронировать"}
                             styleText={"text__content__white__16"}
-                            link={regex.test(phone) ? "/Зарегистрироваться" : ""}
+                            link={regex.test(phone) ? "/api/registration" : ""}
                         />
                     </>
                 }
@@ -286,7 +331,8 @@ export const QuickBooking = ({dataHotelNumber}) => {
                                <Icon24Cancel color={GREY_BLACK}/>
                             </span>
                     </div>
-                    <div className="column" style={{height: "100%", background: WHITE, paddingLeft: "20px", paddingRight: "20px"}}>
+                    <div className="column"
+                         style={{height: "100%", background: WHITE, paddingLeft: "20px", paddingRight: "20px"}}>
                         <div className="row__sb__c inputQuickBookingPeople">
                             <div className="quick__booking__block">
                                 <div
@@ -296,11 +342,11 @@ export const QuickBooking = ({dataHotelNumber}) => {
                 <span
                     className="text__content__black__14"
                     style={{marginLeft: "10px"}}>
-                    {cityOrHotel.dataRange.checkIn} - {cityOrHotel.dataRange.checkOut} {cityOrHotel.dataRange.month}
+                    {requestParameters.dataRange.checkIn} - {requestParameters.dataRange.checkOut} {requestParameters.dataRange.month}
                     <span
                         className="text__content__grey__14"
                         style={{marginLeft: "5px"}}>
-                        {cityOrHotel.dataRange.countNight} {wordDeclensionNight(cityOrHotel.dataRange.countNight)}
+                        {requestParameters.dataRange.countNight} {wordDeclensionNight(requestParameters.dataRange.countNight)}
                     </span>
                 </span>
                                     <span className={openDataRang ? 'iconDate' : "iconBtn"}>
@@ -308,7 +354,7 @@ export const QuickBooking = ({dataHotelNumber}) => {
                     </span>
                                 </div>
                                 {
-                                    openDataRang  && (
+                                    openDataRang && (
                                         <div
                                             className="click-outside-modal-handler"
                                             onClick={handleClickOutsideDataRange}
@@ -337,7 +383,7 @@ export const QuickBooking = ({dataHotelNumber}) => {
                                     onClick={() => handlerOpenGuest()}
                                     style={{cursor: "pointer",}}>
                         <span className="text__content__black__14" style={{marginLeft: "10px"}}>
-                            {cityOrHotel.guest.adult + cityOrHotel.guest.child.length} {wordDeclension(cityOrHotel.guest.adult + cityOrHotel.guest.child.length)}
+                            {requestParameters.guest.adult + requestParameters.guest.child.length} {wordDeclension(requestParameters.guest.adult + requestParameters.guest.child.length)}
                         </span>
                                     <span className={openGuest ? 'iconDate' : "iconBtn"}>
                             <Icon24ChevronDown color={GREY}/>
@@ -361,8 +407,8 @@ export const QuickBooking = ({dataHotelNumber}) => {
                                 }
                                 <GuestHotel
                                     style={showGuest ? "modal__guest" : "modal__none"}
-                                    guest={cityOrHotel.guest.adult}
-                                    child={cityOrHotel.guest.child}
+                                    guest={requestParameters.guest.adult}
+                                    child={requestParameters.guest.child}
                                     handler={() => checkingHandler()}
                                     checkOld={checkOld}
                                 />
@@ -370,11 +416,11 @@ export const QuickBooking = ({dataHotelNumber}) => {
                         </div>
                         <div className="row__sb__c" style={{marginTop: "20px", marginBottom: "35px"}}>
                     <span
-                        className="text__content__black__b__16">Итого за {cityOrHotel.dataRange.countNight} суток</span>
+                        className="text__content__black__b__16">Итого за {requestParameters.dataRange.countNight} суток</span>
                             <span
-                                className="text__content__black__b__20">{formatMoney(dataHotelNumber.last_price_info.price_pn * cityOrHotel.dataRange.countNight)} ₽</span>
+                                className="text__content__black__b__20">{formatMoney(averagePrice * requestParameters.dataRange.countNight)} ₽</span>
                         </div>
-                        {dataClient.auth === true ?
+                        {auth === true ?
 
                             <ButtonIcon
                                 handler={() => dispatch(dataHotelUserHandler(dataHotelNumber))}
@@ -382,7 +428,7 @@ export const QuickBooking = ({dataHotelNumber}) => {
                                 style={"bookBtn"}
                                 name={"Забронировать"}
                                 styleText={"text__content__white__16"}
-                                link={"/Личный_кабинет"}
+                                link={"/person"}
                             />
                             :
                             <>
@@ -394,8 +440,8 @@ export const QuickBooking = ({dataHotelNumber}) => {
                                         value={phone}
                                         className="inputQuickBookingPhone text__content__black__16"
                                         onChange={(e) => setPhone(e.target.value)}
-                                        mask="+7 (999) 999-99-99"
-                                        placeholder="+7 (999) 999-99-99"
+                                        mask="+79999999999"
+                                        placeholder="+79999999999"
                                     />
                                 </div>
                                 {checkPhone ?
@@ -419,7 +465,7 @@ export const QuickBooking = ({dataHotelNumber}) => {
                                     style={"bookBtn"}
                                     name={"Забронировать"}
                                     styleText={"text__content__white__16"}
-                                    link={regex.test(phone) ? "/Зарегистрироваться" : ""}
+                                    link={regex.test(phone) ? "/api/registration" : ""}
                                 />
                             </>
                         }
@@ -453,6 +499,7 @@ export const QuickBooking = ({dataHotelNumber}) => {
                     styleText={"text__content__white__16"}
                 />
             </div>
+            <NumberList dataHotelNumber={dataHotelNumber}/>
         </div>
     )
 }

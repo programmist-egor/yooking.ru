@@ -1,4 +1,5 @@
 import {createSlice} from "@reduxjs/toolkit";
+import {dataInit, dateFormater, monthText} from "../utils/dataFormater";
 
 const search = createSlice({
     name: 'search',
@@ -6,18 +7,21 @@ const search = createSlice({
         showListSearch: false,
         showCalendar: false,
         showGuest: false,
+        banner: null,
         cityOrHotel: {
-            hotelAndCity: {
-                city: {name: "", id: 0, countHotels: 0, location: {},},
-                hotel: {name: "", location: {}, id: 0}
-            },
-            dataRange: {checkIn: "", checkOut: "", month: "", countNight: 6},
-            guest: {adult: 1, child: []}
+            city: {city: "", hotelId: "", location: {}},
+            dataRange:{checkIn: new Date().getDate(), checkOut: new Date().getDate() + 2, month: monthText(new Date().getMonth()), countNight: 2},
+            guest: {adult: 1, child: []},
+            checkIn: dateFormater(new Date()),
+            checkOut: dateFormater(new Date(new Date().setDate(new Date().getDate() + 2))),
         },
         checkIn: "",
         checkOut: ""
     },
     reducers: {
+        setBannerHandler(state, action) {
+            state.banner =  action.payload
+        },
         showListSearchHandler(state, action) {
             state.showListSearch = state.showListSearch = action.payload
         },
@@ -71,18 +75,18 @@ const search = createSlice({
             state.showCalendar = state.showCalendar = action.payload
         },
         cityOrHotelHandler(state, action) {
-            if (action.payload.cityAndHotel === "city") {
-                state.cityOrHotel.hotelAndCity.city = action.payload.value
-            } else {
-                state.cityOrHotel.hotelAndCity.hotel = action.payload.value
-            }
-
+            state.cityOrHotel.city = action.payload
         },
         cityOrHotelInput(state, action) {
-            state.cityOrHotel.hotelAndCity.city.name = action.payload
+            state.cityOrHotel.city = action.payload
+        },
+        requestParameterHandler(state, action) {
+            state.cityOrHotel = action.payload
         },
         handlerDataRange(state, action) {
-            state.cityOrHotel.dataRange = action.payload
+            state.cityOrHotel.dataRange = action.payload.dataRange
+            state.cityOrHotel.checkIn = action.payload.checkIn
+            state.cityOrHotel.checkOut = action.payload.checkOut
         },
         handlerAddGuest(state, action) {
             if (state.cityOrHotel.guest.adult >= 6) {
@@ -131,6 +135,8 @@ const search = createSlice({
 });
 
 export const {
+    setBannerHandler,
+    requestParameterHandler,
     showListSearchHandler,
     cityOrHotelHandler,
     showCalendarHandler,
