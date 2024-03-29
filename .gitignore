@@ -1,4 +1,0 @@
-# Project exclude paths
-.idea
-/server/node_modules
-/client
