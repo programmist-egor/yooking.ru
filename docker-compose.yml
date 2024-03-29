@@ -61,7 +61,7 @@ services:
       - ./nginx_client.conf:/etc/nginx/conf.d
       - ./nginx_server.conf:/etc/nginx/conf.d
     ports:
-      - "80:80"
+      - "8085:80"
     depends_on:
       - client
       - server
