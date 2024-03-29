@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const API_URL =  "https://yooking.ru:5002";
+export const API_URL =  "http://yooking.ru:5002";
 
 
 const $api = axios.create({
