@@ -1,6 +1,6 @@
-import img7 from "../../img/blocks/7.png"
-import img8 from "../../img/blocks/8.png"
-import img9 from "../../img/blocks/9.png"
+import price from "../../assets/image/7.png"
+import cash from "../../assets/image/8.png"
+import esim from "../../assets/image/esim.png"
 
 export const BenefitBlock = () => {
     return (
@@ -10,7 +10,7 @@ export const BenefitBlock = () => {
                 <div className="row__sa__c" style={{marginTop: "10px", width: "100%",}}>
                     <div className="column__c__c" style={{margin: "20px",}}>
                         <img
-                            src={img8}
+                            src={price}
                             alt="8"
                             width={50}
                             height={50}
@@ -20,7 +20,7 @@ export const BenefitBlock = () => {
                     </div>
                     <div className="column__c__c" style={{margin: "20px"}}>
                         <img
-                            src={img7}
+                            src={cash}
                             alt="7"
                             width={50}
                             height={50}
@@ -30,7 +30,7 @@ export const BenefitBlock = () => {
                     </div>
                     <div className="column__c__c" style={{margin: "20px",}}>
                         <img
-                            src={img9}
+                            src={esim}
                             alt="9"
                             width={50}
                             height={50}
@@ -47,7 +47,7 @@ export const BenefitBlock = () => {
                 <div className="row__wrap__c__c" style={{marginTop: "10px", width: "100%",}}>
                     <div className="column__c__c" style={{margin: "20px",}}>
                         <img
-                            src={img8}
+                            src={price}
                             alt="8"
                             width={40}
                             height={40}
@@ -57,7 +57,7 @@ export const BenefitBlock = () => {
                     </div>
                     <div className="column__c__c" style={{margin: "20px"}}>
                         <img
-                            src={img7}
+                            src={cash}
                             alt="7"
                             width={40}
                             height={40}
@@ -67,7 +67,7 @@ export const BenefitBlock = () => {
                     </div>
                     <div className="column__c__c" style={{margin: "20px",}}>
                         <img
-                            src={img9}
+                            src={esim}
                             alt="9"
                             width={40}
                             height={40}

@@ -64,7 +64,6 @@ const authSlice = createSlice({
                     localStorage.setItem('role', user.role);
                     localStorage.setItem('isAuth', "true");
                 } else {
-                    console.log("data",action.payload);
                     state.token = null;
                     state.userEmail = null;
                     state.isActivated = null;

@@ -5,7 +5,7 @@ import {BLACK} from "../../theme/colors";
 import {Link} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {handlerLangChoose} from "../../store/Main";
-import {langData} from "./dataLang";
+import {langData} from "../../utils/dataLang";
 
 export const DrawerMenu = () => {
     const dispatch = useDispatch()

@@ -11,11 +11,7 @@ export const Pay = () => {
     const updateUser = useSelector(state => state.dataBooking.updateUser)
     const numberId = useSelector(state => state.dataBooking.numberId)
     const userId = useSelector(state => state.dataBooking.userId)
-    console.log("userId",userId);
-    console.log("numberId",numberId);
-    console.log("updateUser",updateUser);
-    console.log("updateNumber",updateNumber);
-    console.log("dataBooking",dataBooking);
+
     return (
         <div className="container">
             <div className="header">

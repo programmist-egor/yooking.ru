@@ -3,19 +3,12 @@ import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {wordDeclension, wordDeclensionNight} from "../../utils/word-declensions";
 import InputMask from "react-input-mask";
-import {
-
-    dateClientHandler,
-    finishedBookingHandler,
-} from "../../store/ClientData";
-import {SliderBig} from "../slider/SliderBig";
 import {Icon24BriefcaseOutline, Icon24ChevronDown} from "@vkontakte/icons";
 import {DataRange} from "../calendar/DataRange";
 import {GuestHotel} from "../search/GuestHotel";
 import {handlerDataRange, showCalendarHandler, showGuestHandler} from "../../store/Search";
 import {ButtonIcon} from "../buttons/ButtonIcon";
-import {optionCheckIn, optionCheckOut, optionPayBooking, optionPrepayment} from "../../utils/varible";
-import {CheckInSelect} from "../custom-select/CheckInSelect";
+import {optionPayBooking, optionPrepayment} from "../../utils/varible";
 import BookingService from "../../services/booking.service";
 import {getCurrentDate} from "../../utils/createDataNow";
 import {formatMoney} from "../../utils/formating-money";
@@ -26,7 +19,6 @@ import {setDataBookingHandler} from "../../store/dataBooking";
 import {checkDuplicateId, generateNumericId} from "../../utils/generatorId";
 import {parseJSONProperties, parseJSONPropertiesInArray} from "../../utils/json-parse-object";
 import {
-    validateCheckInCheckOut,
     validateLastName,
     validateName,
     validateObject

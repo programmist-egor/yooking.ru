@@ -1,6 +1,6 @@
 import "./Header.css"
 import {Button} from "../buttons/Button";
-import mapBtn from "../../img/blocks/mapBtn.png"
+import mapBtn from "../../assets/image/mapBtn.png"
 
 export const HeaderHotel = ({value, toggleDrawerMap}) => {
     return (

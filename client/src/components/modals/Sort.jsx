@@ -1,17 +1,15 @@
 import {useDispatch, useSelector} from "react-redux";
 import {useEffect, useState} from "react";
-import {GREY_WHITE} from "../../theme/colors";
 import {
     countPageHandler, dataHotelsListHandler, loadingHotelListHandler,
-    loadingListHandler,
-    loadingMapHandler,
+
     pageSwitchingHandler,
     showHotelMapHandler
 } from "../../store/HotelsList";
-import {countHandler, countOtherSortHandler} from "../../store/Filter";
+import { countOtherSortHandler} from "../../store/Filter";
 import "./Modals.css"
 
-export const Sort = ({style, handleSort, Mobile0660}) => {
+export const Sort = ({style, handleSort}) => {
     const dispatch = useDispatch()
     const [dataHotel, setDataHotel] = useState([])
     const [active, setActive] = useState([{id: 1, active: false}, {id: 2, active: true}, {id: 3, active: false}])

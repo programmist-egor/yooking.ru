@@ -1,8 +1,8 @@
-import React, {Suspense, useEffect, useState} from 'react';
+import React, {Suspense} from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import {Provider, useDispatch} from "react-redux";
+import {Provider} from "react-redux";
 import store from "./store";
 import {ErrorBoundary} from "./components/ErrorBoundary/ErrorBoundary";
 import "./firebase"

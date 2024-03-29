@@ -1,22 +1,14 @@
-import {BLACK, GREEN, GREY, GREY_BLACK, GREY_WHITE, RED, WHITE} from "../../theme/colors";
+import {BLACK, GREEN, GREY, GREY_BLACK, RED, WHITE} from "../../theme/colors";
 import React, {useEffect, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
+import { useSelector} from "react-redux";
 import InputMask from "react-input-mask";
-import {
-    dateClientHandler,
-    checkHandler, finishedBookingHandler, setClientHandler, resetPasswordHandler,
-} from "../../store/ClientData";
-import {Icon24Refresh, Icon24SendOutline, Icon24Done} from "@vkontakte/icons";
+import { Icon24Done} from "@vkontakte/icons";
 import {ButtonIcon} from "../buttons/ButtonIcon";
-import {useNavigate} from "react-router-dom";
 import UsersService from "../../services/users.service";
 import {Button} from "../buttons/Button";
 
 
-
 export const EditUserContactData = () => {
-    const dispatch = useDispatch()
-    const [code, setCode] = useState("");
     const [width, setWidth] = useState(window.innerWidth);
     const [height, setHeight] = useState(window.innerHeight);
     const [saveData, setSaveData] = useState(false);

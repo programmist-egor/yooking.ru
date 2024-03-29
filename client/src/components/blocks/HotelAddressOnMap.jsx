@@ -1,6 +1,6 @@
 import {WHITE} from "../../theme/colors";
 import {Map, Placemark, YMaps} from "@pbe/react-yandex-maps";
-import location from "../../img/location_2.png";
+import location from "../../assets/image/location_2.png";
 import React from "react";
 
 export const HotelAddressOnMap = ({dataHotelNumber}) => {

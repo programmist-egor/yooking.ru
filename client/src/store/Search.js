@@ -1,5 +1,5 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {dataInit, dateFormater, monthText} from "../utils/dataFormater";
+import { dateFormater, monthText} from "../utils/dataFormater";
 
 const search = createSlice({
     name: 'search',

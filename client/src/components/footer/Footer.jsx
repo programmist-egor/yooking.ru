@@ -1,9 +1,9 @@
 import "./Footer.css"
 import {BLACK} from "../../theme/colors";
 import {Link} from "react-router-dom"
-import logo from "../../img/logo_blue.png";
-import vk from "../../img/social/vk.svg"
-import telegram from "../../img/social/telegram.svg"
+import logo from "../../assets/image/logo_blue.png";
+import vk from "../../assets/image/vk.svg"
+import telegram from "../../assets/image/telegram.svg"
 
 export const Footer = () => {
     return (

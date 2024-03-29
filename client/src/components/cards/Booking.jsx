@@ -4,13 +4,10 @@ import React, {useEffect, useState} from "react";
 import {
     Icon20CancelCircleFillRed,
     Icon24BuildingOutline,
-    Icon24Delete,
     Icon24ListBulletOutline,
-    Icon24MoneyTransfer
 } from '@vkontakte/icons';
-import {GREEN, ORANGE, RED, WHITE} from "../../theme/colors";
+import {GREEN, ORANGE,  WHITE} from "../../theme/colors";
 import {ButtonIcon} from "../buttons/ButtonIcon";
-import {dataHotelHandler} from "../../store/HotelItem";
 import NumberService from "../../services/number.service";
 import {parseJSONProperties, parseJSONPropertiesInArray} from "../../utils/json-parse-object";
 import PhotoNumberService from "../../services/photo-number.service";
@@ -19,7 +16,7 @@ import {
     dataNumbersListHandler,
     loadNumberListModalHandler,
     openMoreNumberHandler,
-    openNumberListHandler, setCategoryIdHandler, setNumberHandler
+     setCategoryIdHandler, setNumberHandler
 } from "../../store/HotelsList";
 import {loaderFavoriteAndBookingHandler} from "../../store/ClientData";
 

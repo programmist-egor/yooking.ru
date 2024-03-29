@@ -1,6 +1,6 @@
-import phone from "../../img/blocks/phone_1.png";
-import imgStore from "../../img/blocks/store.png";
-import qr from "../../img/blocks/qr.png";
+import phone from "../../assets/image/phone_1.png";
+import imgStore from "../../assets/image/store.png";
+import qr from "../../assets/image/qr.png";
 
 export const MobileApp = () => {
     return (

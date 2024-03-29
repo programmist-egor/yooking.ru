@@ -1,15 +1,14 @@
 import {Icon24ShareExternalOutline, Icon24LikeOutline, Icon24Like} from '@vkontakte/icons';
-import {BLACK, GREY_BLACK, WHITE} from "../../theme/colors";
+import {BLACK, GREY_BLACK} from "../../theme/colors";
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
-import React, {useCallback, useEffect, useState} from "react";
+import React, { useEffect, useState} from "react";
 import {getCurrentDate} from "../../utils/createDataNow";
 import FavoriteService from "../../services/favorite.service";
 import {v4 as uuidv4} from "uuid";
 
 
 export const HeaderHotelNumber = ({dataHotelNumber, width, hotelId}) => {
-    const dispatch = useDispatch()
     const navigate = useNavigate();
     const auth = useSelector(state => state.auth.isAuth);
     const [favorite, setFavorite] = useState([]);
@@ -33,7 +32,7 @@ export const HeaderHotelNumber = ({dataHotelNumber, width, hotelId}) => {
         }
     }, [])
 
-    console.log("favorite", favorite);
+
 
 
 

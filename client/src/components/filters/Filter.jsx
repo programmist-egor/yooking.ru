@@ -14,7 +14,6 @@ import {
 import {
  setFilteredHotels,
 } from "../../store/HotelsList";
-import {pageDistribution} from "../../utils/search-hotels";
 import {handlerCountHotels} from "../../store/Main";
 import NumberService from "../../services/number.service";
 import {parseJSONPropertiesInArray} from "../../utils/json-parse-object";
@@ -36,9 +35,8 @@ export const Filter = ({updateHoleList}) => {
     const shortFacilities = useSelector(state => state.filter.shortFacilities)
     const rangeValueStart = useSelector(state => state.filter.rangeValueStart)
     const rangeValueEnd = useSelector(state => state.filter.rangeValueEnd)
-    const copyDataHotelsList = useSelector(state => state.hotels_list.copyDataHotelsList)
     const requestParameters = useSelector(state => state.search.cityOrHotel)
-    const loadingHotelList = useSelector(state => state.hotels_list.loadingHotelList)
+
 
     useEffect(() => {
         if(!initFilter || objectList.length !== 0) {
@@ -184,7 +182,6 @@ export const Filter = ({updateHoleList}) => {
             const data = await NumberService.getAllHotelIdNumbers("hotels_map", array);
             const resultNumbers = parseJSONPropertiesInArray(data);
             const number = await filterNumbers(resultNumbers);
-            // console.log("number filters", number);
             return number;
         } catch (error) {
             console.error("An error occurred:", error);
@@ -270,17 +267,10 @@ export const Filter = ({updateHoleList}) => {
             const resultFilterObject = filterObject(updatedFilteredHotels, newArray)
             dispatch(handlerCountHotels(resultFilterObject.length))
             updateFilteredData(resultFilterObject)
-            //addDelBedrooms("update", 0)
         }, 0)
     }
 
     const updateFilteredData = (array) => {
-        // const res = pageDistribution(array)
-        console.log("Фильтрованный массив UPDATE", array);
-        // // dispatch(countPageHandler(res.countPage + 1));
-        // dispatch(copyDataHotelsListHandler(array));
-        // // Обновление количества отелей в списке параметров
-
         dispatch(countOtherSortHandler(array));
         dispatch(setFilteredHotels(array));
         updateHoleList()

@@ -16,7 +16,7 @@ import {
     Icon28CheckCircleOutline,
     Icon28RssFeedOutline,
 } from "@vkontakte/icons";
-import {optionCheckBoxRoomAmenities, optionCheckBoxShortFacilities} from "../../utils/varible";
+import {optionCheckBoxRoomAmenities} from "../../utils/varible";
 import {ButtonIcon} from "../buttons/ButtonIcon";
 import {dataHotelUserHandler} from "../../store/ClientData";
 import {openMoreNumberHandler} from "../../store/HotelsList";

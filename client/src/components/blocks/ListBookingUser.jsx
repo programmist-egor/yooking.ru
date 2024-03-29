@@ -4,13 +4,12 @@ import {useEffect, useState} from "react";
 import {Spinner} from "../spinner/Spinner";
 import {loaderFavoriteAndBookingHandler} from "../../store/ClientData";
 import UsersService from "../../services/users.service";
-import {parseJSONData, parseJSONProperties, parseJSONPropertiesInArray} from "../../utils/json-parse-object";
+import {parseJSONData} from "../../utils/json-parse-object";
 
 
 export const ListBookingUser = () => {
     const dispatch = useDispatch();
     const userId = useSelector((state) => state.auth.userId);
-    const bookingUserData = useSelector(state => state.dataBooking.bookingUserData)
     const loaderFavoriteAndBooking = useSelector(state => state.client__data.loaderFavoriteAndBooking)
     const [width, setWidth] = useState(window.innerWidth);
     const [height, setHeight] = useState(window.innerHeight);

@@ -1,25 +1,13 @@
 import Slider from '@mui/material/Slider';
 import {ThemeProvider, createTheme} from '@mui/material/styles';
-import line2 from "../../img/line2.png"
+import line2 from "../../assets/image/line2.png"
 import {useDispatch, useSelector} from "react-redux";
 import {
-    countHandler,
-    countOtherSortHandler,
     rangeValueEndHandler,
     rangeValueStartHandler
 } from "../../store/Filter";
 import {GREY_BLACK} from "../../theme/colors";
-import {
-    countPageHandler,
-    dataHotelsListHandler, loadingHotelListHandler,
-    loadingListHandler,
-    loadingMapHandler, objectListHandler,
-    pageSwitchingHandler, setFilteredHotels, showHotelMapHandler
-} from "../../store/HotelsList";
-import {pageDistribution} from "../../utils/search-hotels";
-import NumberService from "../../services/number.service";
-import {parseJSONPropertiesInArray} from "../../utils/json-parse-object";
-import CategoryService from "../../services/category.service";
+
 
 const theme = createTheme({
     palette: {
@@ -95,7 +83,6 @@ export const RangePrice = ({handlerFocus}) => {
                     min={0}
                     step={1}
                     color="secondary"
-                    // valueLabelDisplay="auto"
                 />
             </ThemeProvider>
         </>

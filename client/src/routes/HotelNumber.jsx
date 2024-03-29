@@ -11,7 +11,7 @@ import {HotelAmenities} from "../components/blocks/HotelAmenities";
 import {GuestRating} from "../components/blocks/GuestRating";
 import {ReviewClients} from "../components/blocks/ReviewClients";
 import {HotelAddressOnMap} from "../components/blocks/HotelAddressOnMap";
-import {useDispatch, useSelector} from "react-redux";
+import {useDispatch} from "react-redux";
 import React, {useEffect, useState} from "react";
 import {initDateRangeHandler} from "../store/HotelItem";
 import ObjectService from "../services/object.service";
@@ -37,7 +37,7 @@ export const HotelNumber = () => {
         dispatch(initDateRangeHandler())
     }, [])
 
-    console.log("dataHotelNumber", dataHotelNumber);
+
 
     useEffect(() => {
         const handleResize = () => {

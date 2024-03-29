@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Map, Placemark, YMaps, FullscreenControl, ZoomControl } from "@pbe/react-yandex-maps";
-import location from "../../img/location_2.png";
+import location from "../../assets/image/location_2.png";
 import { Spinner } from "../spinner/Spinner";
 import { BalloonYandexMap } from "../blocks/BalloonYandexMap";
 import { createPortal } from "react-dom";
-import { useDispatch, useSelector } from "react-redux";
+import {  useSelector } from "react-redux";
 
 export const HotelMap = () => {
-    const dispatch = useDispatch();
     const loadingMap = useSelector(state => state.hotels_list.loadingMap);
     const objectList = useSelector(state => state.hotels_list.objectList);
     const [activePortal, setActivePortal] = useState(false);

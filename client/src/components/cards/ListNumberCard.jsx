@@ -1,14 +1,12 @@
 import {useDispatch, useSelector} from "react-redux";
 import {SliderBig} from "../slider/SliderBig";
 import React, {useEffect, useState} from "react";
-import {Icon20More, Icon24ListBulletOutline, Icon24MoneyTransfer} from '@vkontakte/icons';
-import {GREEN, GREY_BANNER, GREY_BLACK, ORANGE, RED, WHITE} from "../../theme/colors";
+import {Icon20More, Icon24MoneyTransfer} from '@vkontakte/icons';
+import {GREEN, GREY_BANNER, GREY_BLACK, ORANGE,  WHITE} from "../../theme/colors";
 import {ButtonIcon} from "../buttons/ButtonIcon";
-import {dataHotelUserHandler} from "../../store/ClientData";
-import PhotoObjectService from "../../services/photo-object.service";
 import {formatMoney} from "../../utils/formating-money";
 import CategoryService from "../../services/category.service";
-import {parseJSONProperties, parseJSONPropertiesInArray} from "../../utils/json-parse-object";
+import {parseJSONProperties} from "../../utils/json-parse-object";
 import PhotoNumberService from "../../services/photo-number.service";
 import {MoreNumber} from "../modals/MoreNumber";
 import {
@@ -30,7 +28,6 @@ export const ListNumberCard = ({
                                    area,
                                    bedroom,
                                    hasWiFi,
-                                   hotelId,
                                    type,
                                    dataHotelNumber
                                }) => {

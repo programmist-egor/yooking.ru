@@ -1,12 +1,10 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Header} from "../components/header/Header";
 import {Filter} from "../components/filters/Filter";
-import {ButtonSort} from "../components/buttons/ButtonSort";
 import {HotelCard} from "../components/cards/HotelCard";
 import {ButtonPage} from "../components/buttons/ButtonPage";
 import {Footer} from "../components/footer/Footer";
-import SearchPanel from "../components/search/SearchPanel";
-import {GREY, GREY_BANNER, WHITE} from "../theme/colors";
+import {GREY, WHITE} from "../theme/colors";
 import {useDispatch, useSelector} from "react-redux";
 import {Spinner} from "../components/spinner/Spinner";
 import {HotelMap} from "../components/maps/HotelMap";
@@ -21,17 +19,14 @@ import 'react-modern-drawer/dist/index.css'
 import {ButtonIcon} from "../components/buttons/ButtonIcon";
 import {Sort} from "../components/modals/Sort";
 import {
-    loadingHotelListHandler,
     loadingMapHandler,
     pageSwitchingHandler,
     setFilteredHotels,
-    showHotelMapHandler
 } from "../store/HotelsList";
-import {countOtherSortHandler, resetParamHandler} from "../store/Filter";
-import {useLocation, useNavigate} from "react-router-dom";
+import { resetParamHandler} from "../store/Filter";
+import {useLocation} from "react-router-dom";
 import {BannerSearch} from "../components/blocks/BannerSearch";
-import img__2 from "../img/blocks/2.png";
-import piter from "../img/blocks/piter.png";
+import piter from "../assets/image/piter.png";
 import {getAccommodationCity} from "../utils/word-declensions";
 
 
@@ -58,7 +53,6 @@ export const HotelAndMap = () => {
         id: 2,
         cityId: "12196",
         name: "Санкт-Петербург, Россия",
-        img: img__2,
         text: "Санкт - Петербург",
         header: "ГДЕ ОСТАНОВИТЬСЯ В САНКТ - ПЕТЕРБУРГЕ?",
         banner: piter

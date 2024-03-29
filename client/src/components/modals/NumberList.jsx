@@ -4,10 +4,8 @@ import Modal from '@mui/material/Modal';
 import {useDispatch, useSelector} from "react-redux";
 import {Icon24Cancel} from "@vkontakte/icons";
 import {GREY_BLACK} from "../../theme/colors";
-import {loadingNumberListHandler, openNumberListHandler} from "../../store/HotelsList";
+import { openNumberListHandler} from "../../store/HotelsList";
 import {useEffect, useState} from "react";
-import NumberService from "../../services/number.service";
-import {parseJSONPropertiesInArray} from "../../utils/json-parse-object";
 import {ListNumberCard} from "../cards/ListNumberCard";
 import {Spinner} from "../spinner/Spinner";
 
@@ -27,7 +25,6 @@ const style = {
 
 export const NumberList = ({dataHotelNumber}) => {
     const dispatch = useDispatch()
-    const hotelId = localStorage.getItem("hotelId")
     const openNumberList = useSelector(state => state.hotels_list.openNumberList)
     const loadNumberListModal = useSelector(state => state.hotels_list.loadNumberListModal)
     const dataNumbersList = useSelector(state => state.hotels_list.dataNumbersList)

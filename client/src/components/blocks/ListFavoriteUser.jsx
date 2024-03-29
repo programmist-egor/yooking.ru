@@ -3,7 +3,6 @@ import {Favorite} from "../cards/Favorite";
 import {useEffect, useState} from "react";
 import {Spinner} from "../spinner/Spinner";
 import {loaderFavoriteAndBookingHandler} from "../../store/ClientData";
-import {updateData} from "../../store/actions";
 import FavoriteService from "../../services/favorite.service";
 import ObjectService from "../../services/object.service";
 import {parseJSONPropertiesInArray} from "../../utils/json-parse-object";

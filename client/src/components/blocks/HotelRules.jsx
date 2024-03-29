@@ -1,4 +1,4 @@
-import {BLACK, GREY, GREY_BLACK, RED, WHITE} from "../../theme/colors";
+import {BLACK, GREY_BLACK,  WHITE} from "../../theme/colors";
 import Drawer from "react-modern-drawer";
 import {Icon24ErrorCircleOutline, Icon24Cancel} from "@vkontakte/icons";
 import {ButtonIcon} from "../buttons/ButtonIcon";

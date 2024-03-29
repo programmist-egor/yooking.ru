@@ -1,6 +1,6 @@
 import {Rating} from "../cards/Rating";
 import "./Review.css"
-import {GREEN, RED, WHITE} from "../../theme/colors";
+import {GREEN, RED} from "../../theme/colors";
 import {Icon24AddCircleOutline, Icon28RemoveCircleOutline} from "@vkontakte/icons";
 import {useEffect, useState} from "react";
 import BookingService from "../../services/booking.service";

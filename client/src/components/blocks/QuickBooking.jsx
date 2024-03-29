@@ -4,18 +4,16 @@ import {GREY, GREY_BLACK, RED, WHITE} from "../../theme/colors";
 import {DataRange} from "../calendar/DataRange";
 import {useDispatch, useSelector} from "react-redux";
 import {wordDeclension, wordDeclensionNight} from "../../utils/word-declensions";
-import {cityOrHotelHandler, handlerDataRange, showCalendarHandler, showGuestHandler} from "../../store/Search";
+import { handlerDataRange, showCalendarHandler, showGuestHandler} from "../../store/Search";
 import React, {useEffect, useState} from "react";
 import {GuestHotel} from "../search/GuestHotel";
 import InputMask from "react-input-mask";
-import MobileCode from "../modals/MobileCode";
-import {dateClientHandler, dataHotelUserHandler, phoneUserHandler, linkUserHandler} from "../../store/ClientData";
+import { dataHotelUserHandler, phoneUserHandler, linkUserHandler} from "../../store/ClientData";
 import Drawer from "react-modern-drawer";
 import {formatMoney} from "../../utils/formating-money";
 import {
     dataNumbersListHandler,
-    loadingNumberListHandler, loadNumberListModalHandler,
-    objectListHandler,
+    loadNumberListModalHandler,
     openNumberListHandler
 } from "../../store/HotelsList";
 import {NumberList} from "../modals/NumberList";
@@ -28,7 +26,6 @@ export const QuickBooking = ({dataHotelNumber}) => {
     const hotelId = localStorage.getItem("hotelId")
     const requestParameters = useSelector(state => state.search.cityOrHotel)
     const showCalendar = useSelector(state => state.search.showCalendar)
-    const mobileCodeModal = useSelector(state => state.hotels_item.mobileCodeModal)
     const showGuest = useSelector(state => state.search.showGuest)
     const [openDataRang, setOpenDataRang] = useState(false)
     const [openGuest, setGuest] = useState(false)
@@ -36,7 +33,6 @@ export const QuickBooking = ({dataHotelNumber}) => {
     const [phone, setPhone] = useState("");
     const [checkPhone, setCheckPhone] = useState(false);
     const dataClient = useSelector(state => state.client__data.dateClient)
-    const [verificationId, setVerificationId] = useState('');
     const [isOpenBooking, setIsOpenBooking] = React.useState(false)
     const auth = useSelector(state => state.auth.isAuth);
     const [averagePrice, setAveragePrice] = useState("");
@@ -315,7 +311,6 @@ export const QuickBooking = ({dataHotelNumber}) => {
                     style={{marginTop: "5px"}}>
                 8 800 556 69 99
             </span>
-                <MobileCode header="Подтвердите телефон" phone={phone}/>
             </div>
             <div className="column mobile__quick__booking" style={{marginBottom: "40px"}}>
                 <Drawer
@@ -488,7 +483,7 @@ export const QuickBooking = ({dataHotelNumber}) => {
                             style={{marginTop: "5px", textAlign: "center"}}>
                 8 800 556 69 99
             </span>
-                        <MobileCode header="Подтвердите телефон" phone={phone}/>
+
                     </div>
                 </Drawer>
                 <ButtonIcon

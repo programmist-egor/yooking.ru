@@ -2,9 +2,9 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import {useDispatch, useSelector} from "react-redux";
-import {finishedBookingHandler, resetPasswordHandler, verifedEmailHandler} from "../../store/ClientData";
+import { verifedEmailHandler} from "../../store/ClientData";
 import {Icon24Cancel, Icon28CheckCircleFill} from "@vkontakte/icons";
-import {GREY_BLACK, ORANGE} from "../../theme/colors";
+import {GREY_BLACK} from "../../theme/colors";
 
 const style = {
     position: 'absolute',

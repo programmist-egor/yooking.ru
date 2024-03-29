@@ -7,27 +7,19 @@ import {resetPasswordLogInHandler} from '../../store/ClientData';
 import {Icon24Cancel} from '@vkontakte/icons';
 import {GREEN, GREY_BLACK} from '../../theme/colors';
 import {useNavigate} from 'react-router-dom';
-import {auth} from '../../firebase';
-import {resetPassword} from '../../utils/firebase-utils';
 import * as yup from 'yup';
 import {Formik, Form, Field, ErrorMessage} from 'formik';
 
 const style = {
-    // background: "var(--white)",
-    // borderRadius: "var(--border-radius-20)",
-
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    // marginLeft: "10px",
-    // marginRight: "10px",
 };
 
 export default function ResetPasswordLogIn() {
     const dispatch = useDispatch();
     const resetPasswordLogIn = useSelector((state) => state.client__data.resetPasswordLogIn);
-    const errorResetLogInEmail = useSelector((state) => state.client__data.errorResetLogInEmail);
     const navigate = useNavigate();
     const [errorLogIn, setErrorLogIn] = useState(null);
     const [errorEmail, setErrorEmail] = useState(null);
@@ -53,19 +45,7 @@ export default function ResetPasswordLogIn() {
                     <Formik
                         initialValues={{email_login: ''}}
                         validationSchema={resetEmailSchema}
-                        onSubmit={async (values, actions) => {
-                            try {
-                                await resetPassword(auth, values.email_login, navigate, dispatch);
-                                if (errorResetLogInEmail) {
-                                    setErrorEmail(true)
-                                } else {
-                                    setSendEmail(true)
-                                }
-                            } catch (error) {
-                                setErrorLogIn('Пользователь не найден!');
-                            }
-                            actions.setSubmitting(false);
-                        }}
+                        onSubmit={() => console.log()}
                     >
                         {({isSubmitting}) => (
                             <Form className="loginResetEmail" autoComplete='off'>

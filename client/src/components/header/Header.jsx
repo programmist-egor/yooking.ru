@@ -8,8 +8,8 @@ import {
     Icon24WriteOutline
 } from '@vkontakte/icons';
 import {BLACK, GREY_BLACK, WHITE} from "../../theme/colors";
-import logo from "../../img/logo_blue.png"
-import {Link, useNavigate} from "react-router-dom";
+import logo from "../../assets/image/logo_blue.png"
+import {Link} from "react-router-dom";
 import {Lang} from "../modals/Lang";
 import { modalLangHandler, modalMenuHandler} from "../../store/Main";
 import {Menu} from "../modals/Menu";
@@ -23,7 +23,6 @@ import AuthService from "../../services/auth.service";
 
 export const Header = () => {
     const dispatch = useDispatch();
-    const navigate = useNavigate();
     const token = useSelector(state => state.auth.token);
     const langChoose = useSelector((state) => state.main.langChoose);
     const loadingUserMenu = useSelector((state) => state.main.loadingUserMenu);

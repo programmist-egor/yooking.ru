@@ -7,9 +7,9 @@ import {
     Icon24RadioOn,
     Icon24RadioOff
 } from '@vkontakte/icons';
-import no_photo from '../../img/no_photo.jpg';
+import no_photo from "../../assets/image/no_photo.jpg";
 import {WHITE} from '../../theme/colors';
-import {useDispatch, useSelector} from 'react-redux';
+import {useSelector} from 'react-redux';
 import {useNavigate} from 'react-router-dom';
 import FavoriteService from "../../services/favorite.service";
 import {v4 as uuidv4} from "uuid";
@@ -21,7 +21,6 @@ export const SliderMini = React.memo(({photoHotel, hotelId, width, height, borde
     const userId = useSelector((state) => state.auth.userId);
     const [arrayImage, setArrayImage] = useState([]);
     const auth = useSelector(state => state.auth.isAuth);
-    const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const loadFavorite = () => {

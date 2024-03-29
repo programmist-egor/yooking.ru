@@ -10,22 +10,19 @@ import "./components/search/SearchPanel.css"
 import "./components/styles/Styles.css"
 import "./components/custom-select/CustomSelect.css"
 
-import { Route, Routes, useNavigate} from "react-router-dom";
+import { Route, Routes} from "react-router-dom";
 import {Main} from "./routes/Main";
-import {HotelCity} from "./routes/HotelCity";
 import {HotelAndMap} from "./routes/HotelAndMap";
 import {HotelNumber} from "./routes/HotelNumber";
 import {ErrorPage} from "./routes/ErrorPage";
 import {Login} from "./routes/Login";
 import {Registration} from "./routes/Registration";
-
 import {useDispatch, useSelector} from "react-redux";
-import { modalLangHandler, modalMenuHandler} from "./store/Main";
 import {PersonalArea} from "./routes/PersonalArea";
 import {FavoriteUserHotel} from "./routes/user__data/FavoriteUserHotel";
 import {EditUserData} from "./routes/user__data/EditUserData";
 import {BookingUser} from "./routes/user__data/BookingUser";
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import AuthService from "./services/auth.service";
 import {isAuth} from "./store/authSlice";
 import {StartingPage} from "./components/starting-page/StartingPage";
@@ -34,8 +31,6 @@ import {Pay} from "./routes/Pay";
 function App() {
     const loading = useSelector(state => state.main.loading)
     const dispatch = useDispatch()
-
-
 
     const authChecked = async () => {
         try {
@@ -55,25 +50,21 @@ function App() {
         }
     },[]);
 
-    const closeModals = () => {
-        dispatch(modalLangHandler(false))
-        dispatch(modalMenuHandler(false))
-    }
+
 
     return (
             <Routes>
                 <Route path="/" element={loading ? <StartingPage/> : <Main/>}/>
-                <Route path="/hotels_city" element={<HotelCity/>}/>
                 <Route path="/hotels_map" element={<HotelAndMap/>}/>
                 <Route path="/hotel" element={<HotelNumber/>}/>
-                <Route path="/error" element={<ErrorPage closeModals={closeModals}/>}/>
-                <Route path="/api/login" element={<Login closeModals={closeModals}/>}/>
-                <Route path="/person" element={<PersonalArea closeModals={closeModals}/>}/>
-                <Route path="/pay" element={<Pay closeModals={closeModals}/>}/>
-                <Route path="/api/registration" element={<Registration closeModals={closeModals}/>}/>
-                <Route path="/booking" element={<BookingUser closeModals={closeModals}/>}/>
-                <Route path="/edit_user" element={<EditUserData closeModals={closeModals}/>}/>
-                <Route path="/favorites" element={<FavoriteUserHotel closeModals={closeModals}/>}/>
+                <Route path="/error" element={<ErrorPage />}/>
+                <Route path="/api/login" element={<Login />}/>
+                <Route path="/person" element={<PersonalArea />}/>
+                <Route path="/pay" element={<Pay/>}/>
+                <Route path="/api/registration" element={<Registration />}/>
+                <Route path="/booking" element={<BookingUser />}/>
+                <Route path="/edit_user" element={<EditUserData />}/>
+                <Route path="/favorites" element={<FavoriteUserHotel />}/>
             </Routes>
     );
 }

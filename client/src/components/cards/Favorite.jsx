@@ -1,24 +1,15 @@
-import {useDispatch, useSelector} from "react-redux";
 import {SliderBig} from "../slider/SliderBig";
 import React, {useEffect, useState} from "react";
-import {Icon24Delete, Icon24ListBulletOutline, Icon24MoneyTransfer} from '@vkontakte/icons';
-import {ORANGE, RED, WHITE} from "../../theme/colors";
+import {Icon24Delete, Icon24ListBulletOutline} from '@vkontakte/icons';
+import { WHITE} from "../../theme/colors";
 import {ButtonIcon} from "../buttons/ButtonIcon";
-import {dataHotelUserHandler} from "../../store/ClientData";
 import PhotoObjectService from "../../services/photo-object.service";
 import FavoriteService from "../../services/favorite.service";
-import {
-    setCategoryHandler,
-    setDataObjectBooking,
-    setHotelIdHandler,
-    setNumberBookingHandler
-} from "../../store/HotelsList";
 import NumberService from "../../services/number.service";
 import {parseJSONPropertiesInArray} from "../../utils/json-parse-object";
-import CategoryService from "../../services/category.service";
 
-export const Favorite = ({header, width, address, item, hotelId, object, setObject}) => {
-    const dispatch = useDispatch()
+
+export const Favorite = ({header, width, address,  hotelId, object, setObject}) => {
     const [dataNumbersList, setDataNumbersList] = useState([])
     const [objectPhotos, setObjectPhotos] = useState([]);
     const [averagePrice, setAveragePrice] = useState("");
@@ -60,11 +51,7 @@ export const Favorite = ({header, width, address, item, hotelId, object, setObje
             .catch(e => console.log(e))
     };
 
-    // const bookingNumber = () => {
-    //     dispatch(setCategoryHandler(category))
-    //     dispatch(setDataObjectBooking(object))
-    //     dispatch(setNumberBookingHandler(number))
-    // }
+
 
     return (
         <div>
@@ -115,14 +102,6 @@ export const Favorite = ({header, width, address, item, hotelId, object, setObje
                             handler={() => localStorage.setItem("hotelId", hotelId)}
                             styleText={"text__content__white__12"}
                         />
-                        {/*<ButtonIcon*/}
-                        {/*    style={"bookBookingBtn"}*/}
-                        {/*    name={"Забронировать"}*/}
-                        {/*    icon={<Icon24MoneyTransfer color={WHITE} width={20} height={20}/>}*/}
-                        {/*    handler={() => bookingNumber()}*/}
-                        {/*    styleText={"text__content__white__12"}*/}
-                        {/*    link={"/person"}*/}
-                        {/*/>*/}
                         <ButtonIcon
                             style={"delBookingBtn"}
                             name={"Удалить"}
@@ -180,14 +159,6 @@ export const Favorite = ({header, width, address, item, hotelId, object, setObje
                             handler={() => localStorage.setItem("hotelId", hotelId)}
                             styleText={"text__content__white__12"}
                         />
-                        {/*<ButtonIcon*/}
-                        {/*    style={"bookBookingBtn"}*/}
-                        {/*    name={width >= 0 && width <= 425 ? "" : "Забронировать"}*/}
-                        {/*    icon={<Icon24MoneyTransfer color={WHITE} width={20} height={20}/>}*/}
-                        {/*    handler={() => dispatch(dataHotelUserHandler(item))}*/}
-                        {/*    styleText={"text__content__white__12"}*/}
-                        {/*    link={"/person"}*/}
-                        {/*/>*/}
                         <ButtonIcon
                             style={"delBookingBtn"}
                             name={width >= 0 && width <= 425 ? "" : "Удалить"}

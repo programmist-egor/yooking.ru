@@ -1,8 +1,5 @@
-import yandex from "../../img/yandex.png"
-import google from "../../img/google.png"
-import vk from "../../img/vkontakte.png"
 import {Link, useNavigate} from "react-router-dom";
-import {useDispatch, useSelector} from "react-redux";
+import {useDispatch} from "react-redux";
 import {resetPasswordLogInHandler} from "../../store/ClientData";
 import React, {useState} from "react";
 import {useFormik} from "formik";

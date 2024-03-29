@@ -2,14 +2,11 @@ import {GREY, WHITE} from "../../theme/colors";
 
 import {Spinner} from "../spinner/Spinner";
 import React, {useEffect, useState} from "react";
-import {loadingListHandler} from "../../store/HotelItem";
-import {useDispatch, useSelector} from "react-redux";
+import { useSelector} from "react-redux";
 import {ListNumberCard} from "../cards/ListNumberCard";
-import {MoreNumber} from "../modals/MoreNumber";
+
 
 export const Availability = ({dataHotelNumber}) => {
-    const dispatch = useDispatch()
-    const loading = useSelector(state => state.hotels_item.loadingList)
     const dataNumbersList = useSelector(state => state.hotels_list.dataNumbersList)
     const [width, setWidth] = useState(window.innerWidth);
     const loadingNumberList = useSelector(state => state.hotels_list.loadingNumberList)

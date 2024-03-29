@@ -1,10 +1,6 @@
-import {BLACK, GREY, GREY_BLACK, WHITE} from "../../theme/colors";
+import {BLACK, GREY_BLACK, WHITE} from "../../theme/colors";
 import {
-    Icon56WifiOutline,
-    Icon24CarOutline,
-    Icon24FireAltOutline,
-    Icon24SnowflakeOutline,
-    Icon28CheckCircleOutline, Icon24Cancel, Icon24ErrorCircleOutline, Icon24BuildingOutline
+    Icon28CheckCircleOutline, Icon24Cancel, Icon24BuildingOutline
 } from '@vkontakte/icons';
 import Drawer from "react-modern-drawer";
 import {ButtonIcon} from "../buttons/ButtonIcon";

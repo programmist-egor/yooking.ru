@@ -1,4 +1,4 @@
-import {BLACK, GREY, GREY_BANNER, GREY_BLACK, GREY_WHITE, ORANGE, WHITE} from "../../theme/colors";
+import {BLACK, GREY, GREY_BANNER, GREY_BLACK, ORANGE, WHITE} from "../../theme/colors";
 import {ButtonIcon} from "../buttons/ButtonIcon";
 import {
     Icon28SyncOutline,
@@ -28,9 +28,7 @@ export const CheckAvailability = () => {
     const [openDataRang, setOpenDataRang] = useState(false)
     const [openGuest, setGuest] = useState(false)
     const [checkOld, setCheckOld] = useState(false)
-    const [phone, setPhone] = useState("");
     const [isOpen, setIsOpen] = React.useState(false)
-    const [dataNumbersList, setDataNumbersList] = useState([])
     const hotelId = localStorage.getItem("hotelId")
     const dataNumbers = useSelector(state => state.hotels_list.dataNumbersList)
 

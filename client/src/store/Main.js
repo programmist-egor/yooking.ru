@@ -1,5 +1,5 @@
 import {createSlice} from "@reduxjs/toolkit";
-import ru from "../img/flags/ru.png"
+import ru from "../assets/image/flags/ru.png"
 const main = createSlice({
     name: 'main',
     initialState: {
@@ -55,8 +55,6 @@ export const {
     handlerLoadingStartPage,
     handlerLoadingUserMenu,
     modalMenuHandler,
-    handlerHotelCityId,
-    modalSortHandler,
     handlerCountHotels,
     handlerLangChoose,
     handlerFollowUs,

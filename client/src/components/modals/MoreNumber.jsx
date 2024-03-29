@@ -4,11 +4,8 @@ import Modal from '@mui/material/Modal';
 import {useDispatch, useSelector} from "react-redux";
 import {Icon24Cancel} from "@vkontakte/icons";
 import {GREY_BLACK} from "../../theme/colors";
-import {loadingNumberListHandler, openMoreNumberHandler, openNumberListHandler} from "../../store/HotelsList";
+import { openMoreNumberHandler} from "../../store/HotelsList";
 import {useEffect, useState} from "react";
-import NumberService from "../../services/number.service";
-import {parseJSONPropertiesInArray} from "../../utils/json-parse-object";
-import {ListNumberCard} from "../cards/ListNumberCard";
 import {Spinner} from "../spinner/Spinner";
 import {MoreNumberItem} from "../MoreNumberItem/MoreNumberItem";
 

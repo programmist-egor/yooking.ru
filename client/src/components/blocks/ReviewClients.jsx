@@ -1,4 +1,3 @@
-import {WHITE} from "../../theme/colors";
 import {Review} from "../review/Review";
 import {useEffect, useState} from "react";
 import RatingService from "../../services/rating.service";

@@ -1,5 +1,5 @@
 import SearchPanel from "../search/SearchPanel";
-import {WHITE} from "../../theme/colors";
+
 
 
 

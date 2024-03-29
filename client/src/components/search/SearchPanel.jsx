@@ -2,7 +2,7 @@ import "./SearchPanel.css"
 import React, {useEffect, useState} from "react";
 import {Icon24ChevronDown, Icon24LocationMapOutline} from '@vkontakte/icons';
 import {GREY, WHITE} from "../../theme/colors";
-import line from "../../img/line.png"
+import line from "../../assets/image/line.png"
 import {ButtonIcon} from "../buttons/ButtonIcon";
 import {ListSearch} from "./ListSearch";
 import {useDispatch, useSelector} from "react-redux";
@@ -11,13 +11,13 @@ import {
     showListSearchHandler,
     showCalendarHandler,
     showGuestHandler,
-    initDateRangeHandler, cityOrHotelInput, cityOrHotelHandler, handlerDataRange
+  cityOrHotelHandler, handlerDataRange
 } from "../../store/Search";
 import {DataRange} from "../calendar/DataRange";
 import {GuestHotel} from "./GuestHotel";
 
 import {
-    copyDataHotelsListHandler, dataNumbersListHandler,
+    dataNumbersListHandler,
     loadingHotelListHandler,
     loadingMapHandler, objectListHandler, pageSwitchingHandler, searchParametersHandler, setFilteredHotels,
 

@@ -1,20 +1,14 @@
 import {BLACK_OPACITY, WHITE} from "../../theme/colors";
 import {Link} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
-import {handlerCountHotels, handlerHotelCityId} from "../../store/Main";
 import {
-    copyDataHotelsListHandler,
-    countPageHandler, dataHotelsListHandler, dataNumbersListHandler, loadingHotelListHandler,
-    loadingListHandler,
-    loadingMapHandler, loadingPageCityHotelHandler, objectListHandler,
-    pageSwitchingHandler, resultLoadDataHandler, setFilteredHotels,
-    showHotelMapHandler
+     dataNumbersListHandler, loadingHotelListHandler,
+    loadingMapHandler, objectListHandler,
+    setFilteredHotels,
 } from "../../store/HotelsList";
-import {countHandler, countOtherSortHandler} from "../../store/Filter";
+import { countOtherSortHandler} from "../../store/Filter";
 
 import {
-    cityOrHotelHandler,
-    cityOrHotelInput,
     requestParameterHandler, setBannerHandler,
     showCalendarHandler,
     showGuestHandler
@@ -28,8 +22,6 @@ import {dateFormater, monthText} from "../../utils/dataFormater";
 
 export const WhereToGo = () => {
     const dispatch = useDispatch()
-    const dataHotelsList = useSelector(state => state.hotels_list.dataHotelsList)
-    const copyDataHotelsList = useSelector(state => state.hotels_list.copyDataHotelsList)
     const requestParameters = useSelector(state => state.search.cityOrHotel)
     const [data, setData] = useState([])
     const [link, setLink] = useState("/hotels_map")
@@ -40,76 +32,12 @@ export const WhereToGo = () => {
                     .then(data => {
                         const result = parseJSONPropertiesInArray(data)
                         setData(result)
-                        console.log("result", result);
                     })
             }
         }
         ,
         []
     )
-    console.log("requestParameters", requestParameters);
-    // const [data, setDataCity] = useState([
-    //     {
-    //         id: 1,
-    //         cityId: "12185",
-    //         name: "Ростов-на-Дону, Россия",
-    //         img: img__1,
-    //         text: "Ростов на Дону",
-    //         header: "ГДЕ ОСТАНОВИТЬСЯ В РОСТОВЕ НА ДОНУ",
-    //         banner: rostov,
-    //         price: "5600 ₽",
-    //     },
-    //     {
-    //         id: 2,
-    //         cityId: "12196",
-    //         name: "Санкт-Петербург, Россия",
-    //         img: img__2,
-    //         text: "Санкт - Петербург",
-    //         header: "ГДЕ ОСТАНОВИТЬСЯ В САНКТ - ПЕТЕРБУРГЕ",
-    //         banner: piter,
-    //         price: "6220 ₽",
-    //     },
-    //     {
-    //         id: 3,
-    //         cityId: "12153",
-    //         name: "Москва, Россия",
-    //         img: img__3,
-    //         text: "Москва",
-    //         header: "ГДЕ ОСТАНОВИТЬСЯ В МОСКВЕ",
-    //         banner: moscow,
-    //         price: "7210 ₽",
-    //     },
-    //     {
-    //         id: 4,
-    //         cityId: "12193",
-    //         name: "Сочи, Россия",
-    //         img: img__4,
-    //         text: "Сочи",
-    //         header: "ГДЕ ОСТАНОВИТЬСЯ В СОЧИ",
-    //         banner: sochi,
-    //         price: "6950 ₽",
-    //     },
-    //     {
-    //         id: 5,
-    //         cityId: "12188",
-    //         name: "Самара, Россия",
-    //         img: img__5,
-    //         text: "Самара",
-    //         header: "ГДЕ ОСТАНОВИТЬСЯ В САМАРЕ",
-    //         banner: samara,
-    //         price: "4850 ₽",
-    //     },
-    //     {
-    //         id: 6,
-    //         cityId: "12167",
-    //         name: "Новосибирск, Россия",
-    //         img: img__6,
-    //         text: "Новосибирск",
-    //         header: "ГДЕ ОСТАНОВИТЬСЯ В НОВОСИБИРСКЕ",
-    //         banner: novosib,
-    //         price: "6600 ₽",
-    //     },
-    // ])
 
 
     const updateHotelList = (reqParams) => {

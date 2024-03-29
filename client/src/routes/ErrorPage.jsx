@@ -1,4 +1,3 @@
-import {Link} from "react-router-dom";
 import {GREY_BLACK, WHITE} from "../theme/colors";
 
 export const ErrorPage = () => {

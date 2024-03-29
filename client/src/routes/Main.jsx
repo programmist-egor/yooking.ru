@@ -4,12 +4,10 @@ import {BannerSearch} from "../components/blocks/BannerSearch";
 import {WhereToGo} from "../components/blocks/WhereToGo";
 import {BenefitBlock} from "../components/blocks/BenefitBlock";
 import {MobileApp} from "../components/blocks/MobileApp";
-import {FollowUs} from "../components/blocks/FollowUs";
-import banner from "../img/banner-main.jpg"
+import banner from "../assets/image/banner-main.jpg"
 import React, {useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {checkInHandler, checkOutHandler, initDateRangeHandler} from "../store/Search";
-import {DataRange} from "../components/calendar/DataRange";
 import {dateFormater} from "../components/hooks/dataFormater";
 
 

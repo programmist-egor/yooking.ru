@@ -1,23 +1,18 @@
 import {Button} from "../buttons/Button";
-import metro from "../../img/metro.png"
-import {GREY_BLACK, ORANGE, WHITE} from "../../theme/colors";
+import metro from "../../assets/image/metro.png"
+import {GREY_BLACK, WHITE} from "../../theme/colors";
 import {Rating} from "./Rating";
 import {SliderMini} from "../slider/SliderMini";
-import {Link, useLocation, useNavigate} from "react-router-dom";
+import {Link} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {
     dataNumbersListHandler,
-    loadingHotelListHandler,
-    loadingMapHandler, loadNumberListModalHandler, setFilteredHotels, setHotelIdHandler,
-    showHotelMapHandler,
+    loadingMapHandler, loadNumberListModalHandler,
     showPlaceMarkHandler
 } from "../../store/HotelsList";
-import {dataHotelHandler} from "../../store/HotelItem";
 import {useEffect, useState} from "react";
-import {resetParamHandler} from "../../store/Filter";
 import {formatMoney} from "../../utils/formating-money";
 import PhotoObjectService from "../../services/photo-object.service";
-import CategoryService from "../../services/category.service";
 import {parseJSONPropertiesInArray} from "../../utils/json-parse-object";
 import RatingService from "../../services/rating.service";
 import NumberService from "../../services/number.service";

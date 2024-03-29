@@ -1,19 +1,13 @@
 import React, { useState} from "react";
-import Calendar from ".//Calendar";
 import {dateFormater, dayMonth} from "../hooks/dataFormater";
-import {checkInHandler, checkOutHandler, handlerDataRange} from "../../store/Search";
 import {useDispatch, useSelector} from "react-redux";
 import  * as dataRange from "../../store/HotelItem";
 import "./Calendar.css"
 
-// const scrollContainer = {
-//     height: "calc(7.35em * 3)",
-//     overflowY: "scroll",
-// };
+
 
 export const DataRange = ({style, handle, styles, page}) => {
     const dispatch = useDispatch()
-    const cityOrHotel = useSelector(state => state.search.cityOrHotel)
     const [selectedStartDate, setSelectedStartDate] = useState(null);
     const [selectedEndDate, setSelectedEndDate] = useState(null);
     const [hoveredDate, setHoveredDate] = useState(null);
@@ -22,10 +16,7 @@ export const DataRange = ({style, handle, styles, page}) => {
     const [nightsCount, setNightsCount] = useState(0);
 
 
-    const toDateString = (date) => {
-        if (!date) return null;
-        return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-    };
+
 
     const isLeapYear = (year) => {
         return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;

@@ -2,7 +2,7 @@ import {MenuItem} from "@mui/material";
 import React from "react";
 import {handlerLangChoose} from "../../store/Main";
 import {useDispatch} from "react-redux";
-import {langData} from "./dataLang";
+import {langData} from "../../utils/dataLang";
 
 export const Lang = ({style, handleLang}) => {
     const dispatch = useDispatch()
