@@ -45,7 +45,7 @@ const PORT = process.env.PORT || 5002;
 // Запускаем сервер
 const start = async () => {
     try {
-        await sequelizeExtranet.sync();
+      await sequelizeExtranet.sync();
         server.listen(PORT, () => console.log(`Сервер работает на порту ${PORT}`));
     } catch (e) {
         console.log(e);
