@@ -5,7 +5,7 @@ import {BLACK} from "../../theme/colors";
 import {Link} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {handlerLangChoose} from "../../store/Main";
-// import {langData} from "../../utils/dataLang";
+import {langData} from "../../utils/dataLang";
 
 export const DrawerMenu = () => {
     const dispatch = useDispatch()
@@ -78,36 +78,35 @@ export const DrawerMenu = () => {
                     label="Язык"
                     onChange={(e) => console.log(e.target.value)}
                 >
-
-                    {/*{langData.map(lang => (*/}
-                    {/*    <MenuItem*/}
-                    {/*        value={lang.name}*/}
-                    {/*        key={lang.id}*/}
-                    {/*        onClick={() => dispatch(handlerLangChoose({id: lang.id, name: lang.name, img: lang.img}))}*/}
-                    {/*    >*/}
-                    {/*        <div*/}
-                    {/*            style={{*/}
-                    {/*                display: "flex",*/}
-                    {/*                flexDirection: "row",*/}
-                    {/*                justifyContent: "flex-start",*/}
-                    {/*                alignItems: "center"*/}
-                    {/*            }}*/}
-                    {/*        >*/}
-                    {/*            <img*/}
-                    {/*                src={lang.img}*/}
-                    {/*                alt="ru"*/}
-                    {/*                width={22}*/}
-                    {/*                height={22}*/}
-                    {/*                style={{*/}
-                    {/*                    marginRight: "10px",*/}
-                    {/*                    border: "1px solid white",*/}
-                    {/*                    borderRadius: "50%",*/}
-                    {/*                    boxShadow: "0 0 5px var(--grey)"*/}
-                    {/*            }}*/}
-                    {/*            />{lang.name}*/}
-                    {/*        </div>*/}
-                    {/*    </MenuItem>*/}
-                    {/*))}*/}
+                    {langData.map(lang => (
+                        <MenuItem
+                            value={lang.name}
+                            key={lang.id}
+                            onClick={() => dispatch(handlerLangChoose({id: lang.id, name: lang.name, img: lang.img}))}
+                        >
+                            <div
+                                style={{
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    justifyContent: "flex-start",
+                                    alignItems: "center"
+                                }}
+                            >
+                                <img
+                                    src={lang.img}
+                                    alt="ru"
+                                    width={22}
+                                    height={22}
+                                    style={{
+                                        marginRight: "10px",
+                                        border: "1px solid white",
+                                        borderRadius: "50%",
+                                        boxShadow: "0 0 5px var(--grey)"
+                                }}
+                                />{lang.name}
+                            </div>
+                        </MenuItem>
+                    ))}
                 </Select>
             </FormControl>
         </Box>

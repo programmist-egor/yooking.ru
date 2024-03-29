@@ -10,7 +10,7 @@ import {
 import {BLACK, GREY_BLACK, WHITE} from "../../theme/colors";
 import logo from "../../assets/image/logo_blue.png"
 import {Link} from "react-router-dom";
-// import {Lang} from "../modals/Lang";
+import {Lang} from "../modals/Lang";
 import { modalLangHandler, modalMenuHandler} from "../../store/Main";
 import {Menu} from "../modals/Menu";
 import {useDispatch, useSelector} from "react-redux";
@@ -122,10 +122,10 @@ export const Header = () => {
                                 boxShadow: "0 0 5px var(--grey)"
                             }}
                         />
-                        {/*<Lang*/}
-                        {/*    handleLang={() => dispatch(modalLangHandler(!modalLang))}*/}
-                        {/*    style={modalLang ? "modal__lang" : "modal__none"}*/}
-                        {/*/>*/}
+                        <Lang
+                            handleLang={() => dispatch(modalLangHandler(!modalLang))}
+                            style={modalLang ? "modal__lang" : "modal__none"}
+                        />
                     </div>
                     {
                         !loadingUserMenu ?
@@ -442,7 +442,7 @@ export const Header = () => {
                                     style={{cursor: "pointer"}}
                                     onClick={() => dispatch(modalMenuHandler(!modalMenu))}
                                 >
-                                    {/*<DrawerMenu/>*/}
+                                    <DrawerMenu/>
                                 </div>
                             </div>
                         :

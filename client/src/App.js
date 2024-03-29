@@ -1,5 +1,6 @@
 import './App.css';
 import './components/buttons/Buttons.css'
+import "./components/inputs/Inputs.css"
 import "./components/blocks/Blocks.css"
 import "./components/modals/Modals.css"
 import "./components/filters/Filter.css"
